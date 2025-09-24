@@ -1,4 +1,5 @@
 import config from "../config";
+import NotFoundPage from "../admin/pages/NotFoundPage";
 import ClientDashboard from "../client/pages/ClientDashboard";
 import AdminDashboard from "../admin/pages/AdminDashboard";
 import DefaultPage from "../admin/pages/DefaultPage";
@@ -12,6 +13,10 @@ const layoutRoutes = [
 
 // Các route không sử dụng layout
 const standaloneRoutes = [
+    {
+        path: config.routes.not_found,
+        component: NotFoundPage
+    }
     // { path: config.routes.login, component: Login },
     // { path: config.routes.register, component: Register },
     // { path: config.routes.account, component: Account },
