@@ -25,14 +25,7 @@ const App: React.FC = () => {
               <Route key={index} path={route.path} element={<Element />} />
             );
           })} */}
-          {/* Admin routes */}
-          {/* {adminRoutes.map((route, index) => {
-            const Element = route.component;
-            return (
-              <Route key={index} path={route.path} element={<Element />} />
-            );
-          })} */}
-        {/* Các route dùng chung layout home*/}
+        {/* Các route dùng chung layout home, là các frame trong sidebar ở admin*/}
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             {adminRoutes.map((route, index) => {
@@ -42,7 +35,6 @@ const App: React.FC = () => {
               );
             })}
           </Route>
-          
       </Routes>
     </div>
   );
