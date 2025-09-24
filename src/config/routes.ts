@@ -14,7 +14,7 @@ const routes = {
     admin_dashboard: '/admin/dashboard',
     test_default: '/admin/test_default',
     // admin_users: '/admin/users',
-    default_page: '*',
+    not_found: '*',
 };
 
 export default routes;
