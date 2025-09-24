@@ -1,2 +1,2 @@
 # J2EE_Project-FrontEnd
-Hệ thống Đặt lịch Khám bệnh - FrontEnd - Môn J2EE
+Hệ thống Quản lý nhà hàng và đặt bàn - FrontEnd - Môn J2EE
