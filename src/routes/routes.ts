@@ -29,11 +29,6 @@ const adminRoutes = [
         path: config.routes.test_default,
         component: DefaultPage
     }
-    // { path: config.routes.admin_albums, component: ManageAlbums },
-    // { path: config.routes.admin_artists, component: ManageArtists },
-    // { path: config.routes.admin_users, component: ManageUsers },
-    // { path: config.routes.admin_users_new, component: ManageNewUser },
-    // { path: config.routes.admin_statistical, component: Statistical },
 ];
 
 export { layoutRoutes, standaloneRoutes, adminRoutes };
