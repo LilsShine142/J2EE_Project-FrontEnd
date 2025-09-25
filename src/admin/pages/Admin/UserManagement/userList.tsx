@@ -89,7 +89,7 @@ const UserList: React.FC = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null); // Dữ liệu người dùng chọn để sửa
-  const itemsPerPage = 5; // Số người dùng hiển thị trên mỗi trang
+  const itemsPerPage = 2; // Số người dùng hiển thị trên mỗi trang
   interface RoleOption {
     RoleID: number;
     RoleName: string;
@@ -167,6 +167,7 @@ const UserList: React.FC = () => {
       const matchesStatus = !filters.status || user.Status === filters.status;
       return matchesSearch && matchesRole && matchesStatus;
     });
+    console.log("Filtered Data:", filteredData);
     setData(filteredData.slice(startIndex, endIndex));
     setTotalItems(filteredData.length);
     setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
