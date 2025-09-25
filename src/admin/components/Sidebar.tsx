@@ -143,12 +143,12 @@ const items: MenuProps['items'] = [
   return (
     <div
       ref={sidebarRef}
-      className="w-[15%] h-screen bg-gray-900 text-gray-300 flex flex-col"
+      className="w-[15%] h-screen text-gray-300 flex flex-col bg-white"
     >
       {/* Tiêu đề sidebar */}
       <div className="flex items-center h-[8%] ml-[9%] box-border">
         <Avatar size={32} src={defaultAvatar} className="mr-[4%]" />
-        <span className="text-sm font-medium text-white">MediAdmin</span>
+        <span className="text-sm font-medium text-black">MediAdmin</span>
       </div>
 
       {/* Menu với Ant Design */}
@@ -162,7 +162,7 @@ const items: MenuProps['items'] = [
         openKeys={openKeys}
         onOpenChange={onOpenChange}
         mode="inline"
-        className="bg-gray-900 text-gray-300 overflow-y-auto custom-menu antd-wave-shadow"
+        className="text-gray-300 overflow-y-auto custom-menu antd-wave-shadow"
         items={items}
       />
     </div>

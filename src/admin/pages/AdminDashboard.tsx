@@ -14,7 +14,7 @@ const AdminDashboard: React.FC = () => {
   const location = useLocation(); // Lấy route hiện tại
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
+    <div className="flex h-screen text-white">
       <AdminSidebar />
       <div className="flex flex-col flex-1 ">
         <Header  />
@@ -22,7 +22,7 @@ const AdminDashboard: React.FC = () => {
         {location.pathname === config.routes.admin_dashboard ? (
           <MainContent />
         ) : (
-          <div className="flex-1 overflow-y-auto bg-gray-900">
+          <div className="flex-1 overflow-y-auto p-[20px]">
             <Outlet /> {/* Render Outlet trực tiếp cho route con */}
           </div>
         )}

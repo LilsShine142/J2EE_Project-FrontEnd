@@ -83,9 +83,9 @@ const Footer: React.FC = () => {
                 <li key={index}>
                   <a 
                     href="#" 
-                    className="text-gray-300 hover:text-white transition-colors duration-300 flex items-center group"
+                    className="text-gray-300 hover:text-white transition-colors duration-300 flex items-center"
                   >
-                    <span className="w-2 h-2 bg-red-600 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <span className="link-dot w-2 h-2 bg-red-600 rounded-full mr-3 opacity-0 transition-opacity duration-300"></span>
                     {link}
                   </a>
                 </li>
@@ -101,9 +101,9 @@ const Footer: React.FC = () => {
                 <li key={index}>
                   <a 
                     href="#" 
-                    className="text-gray-300 hover:text-white transition-colors duration-300 flex items-center group"
+                    className="text-gray-300 hover:text-white transition-colors duration-300 flex items-center"
                   >
-                    <span className="w-2 h-2 bg-orange-600 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <span className="link-dot w-2 h-2 bg-orange-600 rounded-full mr-3 opacity-0 transition-opacity duration-300"></span>
                     {service}
                   </a>
                 </li>
@@ -182,6 +182,13 @@ const Footer: React.FC = () => {
           </Row>
         </div>
       </div>
+
+      {/* Thêm CSS cho hover effect */}
+      <style>{`
+        a:hover .link-dot {
+          opacity: 1 !important;
+        }
+      `}</style>
     </footer>
   );
 };

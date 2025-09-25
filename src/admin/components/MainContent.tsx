@@ -6,7 +6,7 @@ interface MainContentProps {
 
 const MainContent: React.FC<MainContentProps> = ({ children }) => {
   return (
-    <div className="flex-1 overflow-y-auto bg-gray-900">
+    <div className="flex-1 overflow-y-auto bg-gray-400">
       {/* Content Area */}
       <div className="p-6">
         {React.Children.count(children) === 0 ? (
