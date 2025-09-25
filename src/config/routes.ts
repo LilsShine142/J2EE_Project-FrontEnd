@@ -12,6 +12,8 @@ const routes = {
     // client_notifications: '/client/notifications',
     // Admin
     admin_dashboard: '/admin/dashboard',
+    // Admin role
+    user_list: '/admin/users',
     test_default: '/admin/test_default',
     // admin_users: '/admin/users',
     not_found: '*',

@@ -3,6 +3,7 @@ import NotFoundPage from "../admin/pages/NotFoundPage";
 import ClientDashboard from "../client/pages/ClientDashboard";
 import AdminDashboard from "../admin/pages/AdminDashboard";
 import DefaultPage from "../admin/pages/DefaultPage";
+import UserList from "../admin/pages/Admin/UserManagement/userList";
 // Các route sử dụng layout HomeLayout
 const layoutRoutes = [
     {
@@ -33,7 +34,11 @@ const adminRoutes = [
     {
         path: config.routes.test_default,
         component: DefaultPage
-    }
+    },
+    {
+        path: config.routes.user_list,
+        component: UserList
+    },
 ];
 
 export { layoutRoutes, standaloneRoutes, adminRoutes };
