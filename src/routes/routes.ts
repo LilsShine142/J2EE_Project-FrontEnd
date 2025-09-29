@@ -5,6 +5,7 @@ import AdminDashboard from "../admin/pages/AdminDashboard";
 import DefaultPage from "../admin/pages/DefaultPage";
 import UserList from "../admin/pages/Admin/UserManagement/userList";
 import TableTypeList from "../admin/pages/Admin/TableManagement/TableType/tableTypeList";
+import TableList from "../admin/pages/Admin/TableManagement/tableList";
 // Các route sử dụng layout HomeLayout
 const layoutRoutes = [
   {
@@ -43,6 +44,10 @@ const adminRoutes = [
   {
     path: config.routes.table_type_list,
     component: TableTypeList,
+  },
+  {
+    path: config.routes.table_list,
+    component: TableList,
   },
 ];
 

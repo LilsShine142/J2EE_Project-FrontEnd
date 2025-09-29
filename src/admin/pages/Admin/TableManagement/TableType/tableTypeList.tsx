@@ -57,15 +57,10 @@ const TableTypeList: React.FC = () => {
         <span>
           <Button
             style={{ marginRight: 16, backgroundColor: "blue", color: "white" }}
-            href={`/admin/table-types/edit/${record.TableTypeId}`}
           >
             Sửa
           </Button>
-          <Button
-            style={{ backgroundColor: "red", color: "white" }}
-            type="link"
-            href={`/admin/table-types/delete/${record.TableTypeId}`}
-          >
+          <Button style={{ backgroundColor: "red", color: "white" }}>
             Xóa
           </Button>
         </span>

@@ -18,6 +18,7 @@ const routes = {
   // admin_users: '/admin/users',
   not_found: "*",
   table_type_list: "/admin/table-types",
+  table_list: "/admin/tables",
 };
 
 export default routes;
