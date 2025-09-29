@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Filter from "../Components/Filter";
-import { Input } from "antd";
+import { Input, Modal } from "antd";
 import DataTable from "../Components/Table/Table";
-// import AddNewUser from "../HumanResourceManagement/Add";
-// import EditUser from "../HumanResourceManagement/Edit";
-// import ViewUser from "../HumanResourceManagement/View";
+import AddNewUser from "./addNewUser"
+import UpdateUser from "./updateUser";
+import { Button, notification, Space } from 'antd';
 import Pagination from "../Components/Pagination";
 import MStatusUser from "../../../../lib/constants/constants";
-// import { ToastContainer, toast } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
-// import Cookies from "js-cookie";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
-// import ConfirmDialog from "../components/ConfirmDialog";
+import DetailModal from "../Components/ModalForm/DetailModal";
 
 // Dữ liệu giả (fake data) dựa trên bảng Users và liên kết với Roles
 const fakeUsers = [
@@ -81,33 +78,16 @@ const UserList: React.FC = () => {
     gender?: string;
   }
   
-  const [data, setData] = useState<User[]>([]);
-  const [totalPages, setTotalPages] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const [showModal, setShowModal] = useState(false);
-  const [showViewModal, setShowViewModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null); // Dữ liệu người dùng chọn để sửa
-  const itemsPerPage = 2; // Số người dùng hiển thị trên mỗi trang
   interface RoleOption {
     RoleID: number;
     RoleName: string;
     Description: string;
   }
-  const [roleOptions, setRoleOptions] = useState<RoleOption[]>([]);
+
   interface StatusOption {
     id: string;
     description: string;
   }
-  const [statusOptions, setStatusOptions] = useState<StatusOption[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState({
-    role: "",
-    status: "",
-  });
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   interface FilterOption {
     key: string;
@@ -116,7 +96,26 @@ const UserList: React.FC = () => {
     placeholder: string;
     values: { value: string; label: string }[];
   }
-  // import type { FilterOption } from "../Components/Filter";
+
+  const [data, setData] = useState<User[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [api, contextHolder] = notification.useNotification();
+  const itemsPerPage = 2; // Số người dùng hiển thị trên mỗi trang
+  const [roleOptions, setRoleOptions] = useState<RoleOption[]>([]);
+  const [statusOptions, setStatusOptions] = useState<StatusOption[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+
+  const [filters, setFilters] = useState({
+    role: "",
+    status: "",
+  });
 
   const fakeRoleOptions = [
     { RoleID: 1, RoleName: "Admin", Description: "Quản trị viên" },
@@ -161,13 +160,17 @@ const UserList: React.FC = () => {
     // Giả lập tải dữ liệu từ API
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
+
     const filteredData = fakeUsers.filter((user) => {
-      const matchesSearch = user.FullName.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = user.FullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           user.Email.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesRole = !filters.role || user.role.RoleID === Number(filters.role);
       const matchesStatus = !filters.status || user.Status === filters.status;
       return matchesSearch && matchesRole && matchesStatus;
     });
+
     console.log("Filtered Data:", filteredData);
+    
     setData(filteredData.slice(startIndex, endIndex));
     setTotalItems(filteredData.length);
     setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
@@ -176,6 +179,7 @@ const UserList: React.FC = () => {
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+    // setCurrentPage(1); // Đặt lại trang hiện tại về 1 khi tìm kiếm
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -184,6 +188,7 @@ const UserList: React.FC = () => {
       ...prevFilters,
       [name]: value,
     }));
+    // setCurrentPage(1); // Đặt lại trang hiện tại về 1 khi thay đổi bộ lọc
   };
 
   const handleReset = () => {
@@ -191,162 +196,244 @@ const UserList: React.FC = () => {
       role: "",
       status: "",
     });
+    setSearchQuery("");
+    setCurrentPage(1);
+  };
+  
+const handleView = (id: number) => {
+    const user = fakeUsers.find((u) => u.UserID === id);
+    if (user) {
+      setSelectedUser(user);
+      setShowViewModal(true);
+    }
   };
 
-const columns = [
-  { key: "UserID", label: "ID" },
-  {
-    key: "Email", 
-    label: "Email",
-  },
-  {
-    key: "Password", 
-    label: "Mật khẩu",
-  },
-  {
-    key: "VerifyCode", 
-    label: "Mã xác minh",
-    render: (row: User) => row.VerifyCode || "Chưa có",
-  },
-  {
-    key: "Status", 
-    label: "Trạng thái xác minh",
-  },
-  {
-    key: "FullName", 
-    label: "Họ và tên",
-  },
-  {
-    key: "JoinDate", 
-    label: "Ngày tham gia",
-    render: (row: User) => row.JoinDate || "Chưa cập nhật",
-  },
-  {
-    key: "PhoneNumber", 
-    label: "Số điện thoại",
-  },
-  {
-    key: "TotalSpent", 
-    label: "Tổng chi tiêu",
-    render: (row: User) => (row.TotalSpent ? row.TotalSpent.toLocaleString() : "0") + " VND",
-  },
-  {
-    key: "LoyaltyPoints", 
-    label: "Điểm thưởng",
-    render: (row: User) => row.LoyaltyPoints || 0,
-  },
-  {
-    key: "StatusWork", 
-    label: "Trạng thái công việc",
-  },
-  {
-    key: "role", 
-    label: "Vai trò",
-    render: (row: User) => row.role?.RoleName || "Không có",
-  },
-  {
-    key: "actions",
-    label: "Hành Động",
-    render: (row: User) => (
-      <div className="flex gap-2">
-        <button
-          // onClick={(e) => {
-          //   e.stopPropagation();
-          //   handleView(row.UserID);
-          // }}
-          className="flex items-center gap-1 px-2 py-1 bg-blue-500 text-white rounded"
-        >
-          <FaEye /> Xem
-        </button>
-        <button
-          // onClick={(e) => {
-          //   e.stopPropagation();
-          //   handleEdit(row.UserID);
-          // }}
-          className="flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white rounded"
-        >
-          <FaEdit /> Sửa
-        </button>
-        <button
-          // onClick={(e) => {
-          //   e.stopPropagation();
-          //   handleDelete(row.UserID);
-          // }}
-          className="flex items-center gap-1 px-2 py-1 bg-red-500 text-white rounded"
-        >
-          <FaTrash /> Xóa
-        </button>
-      </div>
-    ),
-  },
-];
+  const handleEdit = (id: number) => {
+    const user = fakeUsers.find((u) => u.UserID === id);
+    if (user) {
+      setSelectedUser(user);
+      setShowEditModal(true);
+    }
+  };
 
-//   const handleView = async (id: number) => {
-//     const token = Cookies.get("authToken");
-//     if (!token) {
-//       console.error("No token found");
-//       return;
-//     }
-//     // Giả lập lấy dữ liệu chi tiết từ fakeUsers
-//     const selectedData = fakeUsers.find((user) => user.UserID === id);
-//     if (!selectedData) return;
+  const handleDelete = (id: number) => {
+    Modal.confirm({
+      title: 'Xác nhận xóa',
+      content: 'Bạn có chắc muốn xóa người dùng này?',
+      okText: 'Xóa',
+      cancelText: 'Hủy',
+      okType: 'danger',
+      onOk: () => {
+        // Sử dụng id trực tiếp từ tham số hàm
+        setData((prevData) => prevData.filter((user) => user.UserID !== id));
+        api.success({
+          message: 'Thành công',
+          description: 'Đã xóa người dùng thành công!',
+        });
+        setCurrentPage(1);
+      },
+    });
+  };
 
-//     setSelectedUser(selectedData);
-//     setShowViewModal(true);
-//   };
+  const handleAddUser = async (userData: any) => {
+    try {
+      console.log("Adding user:", userData);
+      
+      api.success({
+        message: 'Thành công',
+        description: 'Đã thêm người dùng mới thành công!',
+      });
+      setData((prevData) => [...prevData, userData]);
+    } catch (error) {
+      api.error({
+        message: 'Lỗi',
+        description: 'Có lỗi xảy ra khi thêm người dùng!',
+      });
+      throw error;
+    }
+  };
 
-//   const handleAdd = (newUser: any) => {
-//     // Giả lập thêm người dùng mới với ID tăng dần
-//     const newId = fakeUsers.length + 1;
-//     const userWithId = { ...newUser, UserID: newId, role: fakeRoleOptions[0] };
-//     setData((prevData) => [...prevData, userWithId]);
-//     toast.success("Thêm người dùng thành công!");
-//   };
-
-//   const handleUpdate = (updatedUser: any) => {
-//     setData((prevData) =>
-//       prevData.map((user) =>
-//         user.UserID === updatedUser.UserID ? updatedUser : user
-//       )
-//     );
-//     toast.success("Cập nhật người dùng thành công!");
-//   };
-
-//   const handleEdit = (id: number) => {
-//     const userToEdit = data.find((user) => user.UserID === id);
-//     if (!userToEdit) return;
-
-//     setSelectedEmployee({
-//       ...userToEdit,
-//     });
-
-//     setShowModal(true);
-//   };
-
-//   const handleDelete = (id: number) => {
-//     setDeleteId(id);
-//     setConfirmOpen(true);
-//   };
+  const handleUpdateUser = async (userData: any) => {
+    try {
+      // In real app, call API to update user
+      console.log("Updating user:", userData);
+      
+      api.success({
+        message: 'Thành công',
+        description: 'Đã cập nhật người dùng thành công!',
+      });
+      
+      setShowEditModal(false);
+      setSelectedUser(null);
+      // Refresh data in real app
+    } catch (error) {
+      api.error({
+        message: 'Lỗi',
+        description: 'Có lỗi xảy ra khi cập nhật người dùng!',
+      });
+      throw error;
+    }
+  };
 
 //   const handleConfirmDelete = () => {
 //     setData((prevData) => prevData.filter((user) => user.UserID !== deleteId));
 //     toast.success("Xóa người dùng thành công!");
 //     setConfirmOpen(false);
 //     setDeleteId(null);
-//   };
+  //   };
+  
+  
+const columns = [
+    { 
+      key: "UserID", 
+      label: "ID",
+      render: (row: User) => (
+        <span className="font-mono text-sm">{row.UserID}</span>
+      )
+    },
+    {
+      key: "FullName", 
+      label: "Họ và tên",
+      render: (row: User) => (
+        <div>
+          <div className="font-medium">{row.FullName}</div>
+          <div className="text-sm text-gray-500">{row.Email}</div>
+        </div>
+      )
+    },
+    {
+      key: "PhoneNumber", 
+      label: "Số điện thoại",
+    },
+    {
+      key: "Status", 
+      label: "Trạng thái",
+      render: (row: User) => (
+        <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
+          row.Status === 'Verified' 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-yellow-100 text-yellow-800'
+        }`}>
+          {row.Status === 'Verified' ? 'Đã xác minh' : 'Chưa xác minh'}
+        </span>
+      )
+    },
+    {
+      key: "role", 
+      label: "Vai trò",
+      render: (row: User) => (
+        <span className="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+          {row.role?.RoleName || "Không có"}
+        </span>
+      )
+    },
+    {
+      key: "StatusWork", 
+      label: "Trạng thái làm việc",
+      render: (row: User) => (
+        <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
+          row.StatusWork === 'Active' 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-red-100 text-red-800'
+        }`}>
+          {row.StatusWork === 'Active' ? 'Hoạt động' : 'Không hoạt động'}
+        </span>
+      )
+    },
+    {
+      key: "TotalSpent", 
+      label: "Tổng chi tiêu",
+      render: (row: User) => (
+        <span className="font-mono">
+          {(row.TotalSpent || 0).toLocaleString('vi-VN')} ₫
+        </span>
+      )
+    },
+    {
+      key: "actions",
+      label: "Hành động",
+      render: (row: User) => (
+        <div className="flex gap-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleView(row.UserID);
+            }}
+            className="flex items-center gap-1 px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors"
+            title="Xem chi tiết"
+          >
+            <FaEye className="w-3 h-3" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(row.UserID);
+            }}
+            className="flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600 transition-colors"
+            title="Chỉnh sửa"
+          >
+            <FaEdit className="w-3 h-3" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(row.UserID);
+            }}
+            className="flex items-center gap-1 px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors"
+            title="Xóa"
+          >
+            <FaTrash className="w-3 h-3" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+// Columns cho DetailModal
+  const userDetailColumns = [
+    { label: "ID", key: "UserID" },
+    { label: "Họ tên", key: "FullName" },
+    { label: "Email", key: "Email" },
+    { label: "Số điện thoại", key: "PhoneNumber" },
+    { 
+      label: "Vai trò", 
+      key: "role",
+      render: (value: User['role']) => value.RoleName 
+    },
+    { 
+      label: "Trạng thái", 
+      key: "Status",
+      render: (value: string) => value === 'Verified' ? 'Đã xác minh' : 'Chưa xác minh'
+    },
+    { 
+      label: "Trạng thái làm việc", 
+      key: "StatusWork",
+      render: (value: string) => value === 'Active' ? 'Hoạt động' : 'Không hoạt động'
+    },
+    { label: "Ngày tham gia", key: "JoinDate" },
+    { 
+      label: "Tổng chi tiêu", 
+      key: "TotalSpent",
+      render: (value: number) => value.toLocaleString('vi-VN') + ' ₫'
+    },
+    { label: "Điểm thưởng", key: "LoyaltyPoints" },
+  ];
 
   return (
-    <div className="p-4 bg-white shadow-md rounded-lg">
+    <div className="p-6 bg-white shadow-lg rounded-lg">
+      {contextHolder}
       <h2 className="text-2xl font-bold mb-4 text-black">Danh sách người dùng</h2>
-      {/* <ToastContainer /> */}
-      <div className="flex flex-col md:flex-row md:items-center gap-4 text-black">
-        <Input
-          value={searchQuery}
-          onChange={handleSearch}
-          placeholder="🔍 Tìm kiếm theo tên..."
-          className="w-full md:w-1/2 border border-gray-300 -mb-[6px]"
-          size="large"
-        />
+      {/* Search and Filter */}
+      <div className="flex flex-col lg:flex-row gap-4 mb-6 text-black">
+        <div className="flex-1">
+          <Input
+            value={searchQuery}
+            onChange={handleSearch}
+            placeholder="🔍 Tìm kiếm theo tên hoặc email..."
+            className="w-full"
+            size="large"
+          />
+        </div>
         <Filter
           filters={filters}
           options={filterOptions}
@@ -355,28 +442,13 @@ const columns = [
         />
       </div>
 
-      {/* <AddNewUser onAdd={handleAdd} />
-      <EditUser
-        show={showModal}
-        setShow={setShowModal}
-        userData={selectedEmployee}
-        onUpdate={handleUpdate}
+      {/* Add User Button */}
+      <AddNewUser 
+        onAdd={handleAddUser}
+        roleOptions={roleOptions}
       />
 
-      <ViewUser
-        show={showViewModal}
-        setShow={setShowViewModal}
-        userData={selectedUser}
-      />
-      <ConfirmDialog
-        isOpen={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title="Xác nhận xóa"
-        message={`Bạn có chắc muốn xóa người dùng ID: ${deleteId}?`}
-      /> */}
-
-      <div className="relative">
+      <div className="bg-white rounded-lg border overflow-hidden">
         <DataTable
           columns={columns}
           data={data.map(user => ({ ...user, id: user.UserID }))}
@@ -397,6 +469,30 @@ const columns = [
           />
         </div>
       </div>
+
+      {/* Edit Modal */}
+      <UpdateUser
+        show={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedUser(null);
+        }}
+        onUpdate={handleUpdateUser}
+        userData={selectedUser}
+        roleOptions={roleOptions}
+      />
+
+      {/* View Modal sử dụng DetailModal */}
+      <DetailModal<User>
+        show={showViewModal}
+        onClose={() => {
+          setShowViewModal(false);
+          setSelectedUser(null);
+        }}
+        title="Chi tiết người dùng"
+        data={selectedUser}
+        columns={userDetailColumns}
+      />
     </div>
   );
 };
