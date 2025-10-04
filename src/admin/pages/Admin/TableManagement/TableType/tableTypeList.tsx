@@ -4,9 +4,10 @@ import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import Pagination from "../../Components/Pagination";
 import Filter from "../../Components/Filter";
 import DataTable from "../../Components/Table/Table";
-//import AddNewTableType from "./AddNewTableType";
 //import UpdateTableType from "./UpdateTableType";
 import DetailModal from "../../Components/ModalForm/DetailModal";
+import AddNewTableType from "./addNewTableType";
+import UpdateTableType from "./updateTableType";
 
 // --- Fake data ---
 const FakeTableTypeData = [
@@ -113,7 +114,7 @@ const TableTypeList: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const handleAddTableType = (tableData: TableType) => {
+  const handleAddTableType = async (tableData: TableType): Promise<void> => {
     setData((prev) => [...prev, tableData]);
     api.success({
       message: "Thành công",
@@ -129,7 +130,9 @@ const TableTypeList: React.FC = () => {
     }
   };
 
-  const handleUpdateTableType = (updatedData: TableType) => {
+  const handleUpdateTableType = async (
+    updatedData: TableType
+  ): Promise<void> => {
     setData((prev) =>
       prev.map((t) =>
         t.TableTypeId === updatedData.TableTypeId ? updatedData : t
@@ -258,7 +261,7 @@ const TableTypeList: React.FC = () => {
       </div>
 
       {/* Add Button */}
-      {/* <AddNewTableType onAdd={handleAddTableType} /> */}
+      <AddNewTableType onAdd={handleAddTableType} />
 
       {/* Table */}
       <div className="bg-white rounded-lg border overflow-hidden">
@@ -284,12 +287,12 @@ const TableTypeList: React.FC = () => {
       </div>
 
       {/* Modals */}
-      {/* <UpdateTableType
+      <UpdateTableType
         show={showEditModal}
         onClose={() => setShowEditModal(false)}
         onUpdate={handleUpdateTableType}
         tableTypeData={selectedTableType}
-      /> */}
+      />
 
       <DetailModal<TableType>
         show={showViewModal}
