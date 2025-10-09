@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import Filter from "../Components/Filter";
 import { Input, Modal } from "antd";
 import DataTable from "../Components/Table/Table";
-import AddNewUser from "./addNewUser"
-import UpdateUser from "./updateUser";
+import AddNewCustomer from "./addNewUser";
+import UpdateCustomer from "./updateUser";
 import { Button, notification, Space } from 'antd';
 import Pagination from "../Components/Pagination";
 import MStatusUser from "../../../../lib/constants/constants";
@@ -25,7 +25,10 @@ const fakeUsers = [
     LoyaltyPoints: 50,
     StatusWork: "Active",
     avatar: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150",
-    role: { RoleID: 1, RoleName: "Admin", Description: "Quản trị viên" },
+    role: { RoleID: 4, RoleName: "Customer", Description: "Khách hàng" },
+    Address: "123 Đường ABC, Quận 1, TP.HCM",
+    DateOfBirth: "1990-05-15",
+    LastLogin: "2024-01-10 14:30:00",
   },
   {
     UserID: 2,
@@ -39,7 +42,10 @@ const fakeUsers = [
     TotalSpent: 800000.00,
     LoyaltyPoints: 20,
     StatusWork: "Inactive",
-    role: { RoleID: 2, RoleName: "Staff", Description: "Nhân viên" },
+    role: { RoleID: 4, RoleName: "Customer", Description: "Khách hàng" },
+    Address: "456 Đường XYZ, Quận 2, TP.HCM",
+    DateOfBirth: "1992-08-20",
+    LastLogin: "2024-01-08 09:15:00",
   },
   {
     UserID: 3,
@@ -53,11 +59,48 @@ const fakeUsers = [
     TotalSpent: 2000000.75,
     LoyaltyPoints: 75,
     StatusWork: "Active",
-    role: { RoleID: 3, RoleName: "Manager", Description: "Quản lý" },
+    role: { RoleID: 4, RoleName: "Customer", Description: "Khách hàng" },
+    Address: "789 Đường DEF, Quận 3, TP.HCM",
+    DateOfBirth: "1988-12-05",
+    LastLogin: "2024-01-12 16:45:00",
   },
+  {
+    UserID: 4,
+    Email: "phamthid@example.com",
+    Password: "password000",
+    VerifyCode: "GHI789",
+    Status: "Verified",
+    FullName: "Pham Thi D",
+    JoinDate: "2023-04-05",
+    PhoneNumber: "0934567890",
+    TotalSpent: 1200000.25,
+    LoyaltyPoints: 35,
+    StatusWork: "Active",
+    role: { RoleID: 4, RoleName: "Customer", Description: "Khách hàng" },
+    Address: "321 Đường GHI, Quận 4, TP.HCM",
+    DateOfBirth: "1995-03-25",
+    LastLogin: "2024-01-11 11:20:00",
+  },
+  {
+    UserID: 5,
+    Email: "admin@example.com",
+    Password: "admin123",
+    VerifyCode: "ADM001",
+    Status: "Verified",
+    FullName: "Admin User",
+    JoinDate: "2023-01-01",
+    PhoneNumber: "0945678901",
+    TotalSpent: 0,
+    LoyaltyPoints: 0,
+    StatusWork: "Active",
+    role: { RoleID: 1, RoleName: "Admin", Description: "Quản trị viên" },
+    Address: "111 Admin Street",
+    DateOfBirth: "1985-01-01",
+    LastLogin: "2024-01-12 10:00:00",
+  }
 ];
 
-const UserList: React.FC = () => {
+const CustomerList: React.FC = () => {
   interface User {
     UserID: number;
     Email: string;
@@ -67,6 +110,8 @@ const UserList: React.FC = () => {
     FullName: string;
     JoinDate: string;
     PhoneNumber: string;
+    TotalSpent: number;
+    LoyaltyPoints: number;
     StatusWork: string;
     role: {
       RoleID: number;
@@ -75,6 +120,9 @@ const UserList: React.FC = () => {
     };
     avatar?: string;
     gender?: string;
+    Address: string;
+    DateOfBirth: string;
+    LastLogin: string;
   }
   
   interface RoleOption {
@@ -102,9 +150,9 @@ const UserList: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<User | null>(null);
   const [api, contextHolder] = notification.useNotification();
-  const itemsPerPage = 2; // Số người dùng hiển thị trên mỗi trang
+  const itemsPerPage = 2; // Số khách hàng hiển thị trên mỗi trang
   const [roleOptions, setRoleOptions] = useState<RoleOption[]>([]);
   const [statusOptions, setStatusOptions] = useState<StatusOption[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -120,6 +168,7 @@ const UserList: React.FC = () => {
     { RoleID: 1, RoleName: "Admin", Description: "Quản trị viên" },
     { RoleID: 2, RoleName: "Staff", Description: "Nhân viên" },
     { RoleID: 3, RoleName: "Manager", Description: "Quản lý" },
+    { RoleID: 4, RoleName: "Customer", Description: "Khách hàng" },
   ];
 
   const filterOptions: FilterOption[] = [
@@ -160,7 +209,10 @@ const UserList: React.FC = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
 
-    const filteredData = fakeUsers.filter((user) => {
+    // Lọc chỉ hiển thị các user có role là Customer
+    const customerUsers = fakeUsers.filter(user => user.role.RoleName === "Customer");
+
+    const filteredData = customerUsers.filter((user) => {
       const matchesSearch = user.FullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            user.Email.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesRole = !filters.role || user.role.RoleID === Number(filters.role);
@@ -178,7 +230,7 @@ const UserList: React.FC = () => {
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    // setCurrentPage(1); // Đặt lại trang hiện tại về 1 khi tìm kiếm
+    setCurrentPage(1); // Đặt lại trang hiện tại về 1 khi tìm kiếm
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -187,7 +239,7 @@ const UserList: React.FC = () => {
       ...prevFilters,
       [name]: value,
     }));
-    // setCurrentPage(1); // Đặt lại trang hiện tại về 1 khi thay đổi bộ lọc
+    setCurrentPage(1); // Đặt lại trang hiện tại về 1 khi thay đổi bộ lọc
   };
 
   const handleReset = () => {
@@ -199,18 +251,18 @@ const UserList: React.FC = () => {
     setCurrentPage(1);
   };
   
-const handleView = (id: number) => {
-    const user = fakeUsers.find((u) => u.UserID === id);
-    if (user) {
-      setSelectedUser(user);
+  const handleView = (id: number) => {
+    const customer = fakeUsers.find((u) => u.UserID === id);
+    if (customer) {
+      setSelectedCustomer(customer);
       setShowViewModal(true);
     }
   };
 
   const handleEdit = (id: number) => {
-    const user = fakeUsers.find((u) => u.UserID === id);
-    if (user) {
-      setSelectedUser(user);
+    const customer = fakeUsers.find((u) => u.UserID === id);
+    if (customer) {
+      setSelectedCustomer(customer);
       setShowEditModal(true);
     }
   };
@@ -218,71 +270,63 @@ const handleView = (id: number) => {
   const handleDelete = (id: number) => {
     Modal.confirm({
       title: 'Xác nhận xóa',
-      content: 'Bạn có chắc muốn xóa người dùng này?',
+      content: 'Bạn có chắc muốn xóa khách hàng này?',
       okText: 'Xóa',
       cancelText: 'Hủy',
       okType: 'danger',
       onOk: () => {
         // Sử dụng id trực tiếp từ tham số hàm
-        setData((prevData) => prevData.filter((user) => user.UserID !== id));
+        setData((prevData) => prevData.filter((customer) => customer.UserID !== id));
         api.success({
           message: 'Thành công',
-          description: 'Đã xóa người dùng thành công!',
+          description: 'Đã xóa khách hàng thành công!',
         });
         setCurrentPage(1);
       },
     });
   };
 
-  const handleAddUser = async (userData: any) => {
+  const handleAddCustomer = async (customerData: any) => {
     try {
-      console.log("Adding user:", userData);
+      console.log("Adding customer:", customerData);
       
       api.success({
         message: 'Thành công',
-        description: 'Đã thêm người dùng mới thành công!',
+        description: 'Đã thêm khách hàng mới thành công!',
       });
-      setData((prevData) => [...prevData, userData]);
+      setData((prevData) => [...prevData, customerData]);
     } catch (error) {
       api.error({
         message: 'Lỗi',
-        description: 'Có lỗi xảy ra khi thêm người dùng!',
+        description: 'Có lỗi xảy ra khi thêm khách hàng!',
       });
       throw error;
     }
   };
 
-  const handleUpdateUser = async (userData: any) => {
+  const handleUpdateCustomer = async (customerData: any) => {
     try {
-      // In real app, call API to update user
-      console.log("Updating user:", userData);
+      // In real app, call API to update customer
+      console.log("Updating customer:", customerData);
       
       api.success({
         message: 'Thành công',
-        description: 'Đã cập nhật người dùng thành công!',
+        description: 'Đã cập nhật khách hàng thành công!',
       });
       
       setShowEditModal(false);
-      setSelectedUser(null);
+      setSelectedCustomer(null);
       // Refresh data in real app
     } catch (error) {
       api.error({
         message: 'Lỗi',
-        description: 'Có lỗi xảy ra khi cập nhật người dùng!',
+        description: 'Có lỗi xảy ra khi cập nhật khách hàng!',
       });
       throw error;
     }
   };
 
-//   const handleConfirmDelete = () => {
-//     setData((prevData) => prevData.filter((user) => user.UserID !== deleteId));
-//     toast.success("Xóa người dùng thành công!");
-//     setConfirmOpen(false);
-//     setDeleteId(null);
-  //   };
-  
-  
-const columns = [
+  const columns = [
     { 
       key: "UserID", 
       label: "ID",
@@ -303,6 +347,15 @@ const columns = [
     {
       key: "PhoneNumber", 
       label: "Số điện thoại",
+    },
+    {
+      key: "Address", 
+      label: "Địa chỉ",
+      render: (row: User) => (
+        <div className="max-w-xs truncate" title={row.Address}>
+          {row.Address}
+        </div>
+      )
     },
     {
       key: "Status", 
@@ -336,6 +389,15 @@ const columns = [
             : 'bg-red-100 text-red-800'
         }`}>
           {row.StatusWork === 'Active' ? 'Hoạt động' : 'Không hoạt động'}
+        </span>
+      )
+    },
+    {
+      key: "TotalSpent", 
+      label: "Tổng chi tiêu",
+      render: (row: User) => (
+        <span className="font-mono">
+          {(row.TotalSpent || 0).toLocaleString('vi-VN')} ₫
         </span>
       )
     },
@@ -379,7 +441,40 @@ const columns = [
     },
   ];
 
-const userColumns = [
+  // Columns cho DetailModal
+  const customerDetailColumns = [
+    { label: "ID", key: "UserID" },
+    { label: "Họ tên", key: "FullName" },
+    { label: "Email", key: "Email" },
+    { label: "Số điện thoại", key: "PhoneNumber" },
+    { label: "Địa chỉ", key: "Address" },
+    { label: "Ngày sinh", key: "DateOfBirth" },
+    { label: "Lần đăng nhập cuối", key: "LastLogin" },
+    { 
+      label: "Vai trò", 
+      key: "role",
+      render: (value: User['role']) => value.RoleName 
+    },
+    { 
+      label: "Trạng thái", 
+      key: "Status",
+      render: (value: string) => value === 'Verified' ? 'Đã xác minh' : 'Chưa xác minh'
+    },
+    { 
+      label: "Trạng thái làm việc", 
+      key: "StatusWork",
+      render: (value: string) => value === 'Active' ? 'Hoạt động' : 'Không hoạt động'
+    },
+    { label: "Ngày tham gia", key: "JoinDate" },
+    { 
+      label: "Tổng chi tiêu", 
+      key: "TotalSpent",
+      render: (value: number) => value.toLocaleString('vi-VN') + ' ₫'
+    },
+    { label: "Điểm thưởng", key: "LoyaltyPoints" },
+    ];
+    
+const customerColumns = [
         {
         name: "Email",
         label: "Email",
@@ -457,47 +552,36 @@ const userColumns = [
         defaultValue: new Date().toISOString().split('T')[0],
         },
         {
+        name: "TotalSpent",
+        label: "Tổng chi tiêu",
+        type: "number" as const,
+        defaultValue: 0,
+        placeholder: "0",
+        },
+        {
+        name: "LoyaltyPoints",
+        label: "Điểm thưởng",
+        type: "number" as const,
+        defaultValue: 0,
+        placeholder: "0",
+        },
+        {
         name: "avatar",
         label: "Ảnh đại diện",
         type: "file" as const,
         span: 2 as const,
         },
-  ];
-
-// Columns cho DetailModal
-  const userDetailColumns = [
-    { label: "ID", key: "UserID" },
-    { label: "Họ tên", key: "FullName" },
-    { label: "Email", key: "Email" },
-    { label: "Số điện thoại", key: "PhoneNumber" },
-    { 
-      label: "Vai trò", 
-      key: "role",
-      render: (value: User['role']) => value.RoleName 
-    },
-    { 
-      label: "Trạng thái", 
-      key: "Status",
-      render: (value: string) => value === 'Verified' ? 'Đã xác minh' : 'Chưa xác minh'
-    },
-    { 
-      label: "Trạng thái làm việc", 
-      key: "StatusWork",
-      render: (value: string) => value === 'Active' ? 'Hoạt động' : 'Không hoạt động'
-    },
-    { label: "Ngày tham gia", key: "JoinDate" },
-   
-  ];
-
-  const initialFormData = userColumns.reduce((acc, col) => {
-    acc[col.name] = col.defaultValue || "";
-    return acc;
-  }, {} as { [key: string]: any });
+    ];
+    
+    const initialFormData = customerColumns.reduce((acc, col) => {
+        acc[col.name] = col.defaultValue || "";
+        return acc;
+    }, {} as { [key: string]: any });
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg">
       {contextHolder}
-      <h2 className="text-2xl font-bold mb-4 text-black">Danh sách nhân viên</h2>
+      <h2 className="text-2xl font-bold mb-4 text-black">Danh sách khách hàng</h2>
       {/* Search and Filter */}
       <div className="flex flex-col lg:flex-row gap-4 mb-6 text-black">
         <div className="flex-1">
@@ -517,18 +601,18 @@ const userColumns = [
         />
       </div>
 
-      {/* Add User Button */}
-      <AddNewUser 
-        onAdd={handleAddUser}
+      {/* Add Customer Button */}
+      <AddNewCustomer 
+        onAdd={handleAddCustomer}
         initialFormData={initialFormData}
-        columns={userColumns}
+        columns={customerColumns}
         roleOptions={roleOptions}
       />
 
       <div className="bg-white rounded-lg border overflow-hidden">
         <DataTable
           columns={columns}
-          data={data.map(user => ({ ...user, id: user.UserID }))}
+          data={data.map(customer => ({ ...customer, id: customer.UserID }))}
           onSort={() => {}}
           sortConfig={{ key: '', direction: 'ascending' }}
         />
@@ -537,7 +621,7 @@ const userColumns = [
           <span className="text-sm text-gray-600">
             Hiển thị {(currentPage - 1) * itemsPerPage + 1}-
             {Math.min(currentPage * itemsPerPage, totalItems)} trong tổng số{" "}
-            {totalItems} người dùng
+            {totalItems} khách hàng
           </span>
           <Pagination
             currentPage={currentPage}
@@ -548,14 +632,14 @@ const userColumns = [
       </div>
 
       {/* Edit Modal */}
-      <UpdateUser
+      <UpdateCustomer
         show={showEditModal}
         onClose={() => {
           setShowEditModal(false);
-          setSelectedUser(null);
+          setSelectedCustomer(null);
         }}
-        onUpdate={handleUpdateUser}
-        userData={selectedUser}
+        onUpdate={handleUpdateCustomer}
+        userData={selectedCustomer}
         roleOptions={roleOptions}
       />
 
@@ -564,14 +648,14 @@ const userColumns = [
         show={showViewModal}
         onClose={() => {
           setShowViewModal(false);
-          setSelectedUser(null);
+          setSelectedCustomer(null);
         }}
-        title="Chi tiết người dùng"
-        data={selectedUser}
-        columns={userDetailColumns}
+        title="Chi tiết khách hàng"
+        data={selectedCustomer}
+        columns={customerDetailColumns}
       />
     </div>
   );
 };
 
-export default UserList;
+export default CustomerList;
