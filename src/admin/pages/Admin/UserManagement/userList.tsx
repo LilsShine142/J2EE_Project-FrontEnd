@@ -67,8 +67,6 @@ const UserList: React.FC = () => {
     FullName: string;
     JoinDate: string;
     PhoneNumber: string;
-    TotalSpent: number;
-    LoyaltyPoints: number;
     StatusWork: string;
     role: {
       RoleID: number;
@@ -342,15 +340,6 @@ const columns = [
       )
     },
     {
-      key: "TotalSpent", 
-      label: "Tổng chi tiêu",
-      render: (row: User) => (
-        <span className="font-mono">
-          {(row.TotalSpent || 0).toLocaleString('vi-VN')} ₫
-        </span>
-      )
-    },
-    {
       key: "actions",
       label: "Hành động",
       render: (row: User) => (
@@ -390,6 +379,91 @@ const columns = [
     },
   ];
 
+const userColumns = [
+        {
+        name: "Email",
+        label: "Email",
+        type: "email" as const,
+        required: true,
+        placeholder: "Nhập email",
+        },
+        {
+        name: "Password",
+        label: "Mật khẩu",
+        type: "password" as const,
+        required: true,
+        placeholder: "Nhập mật khẩu",
+        },
+        {
+        name: "FullName",
+        label: "Họ và tên",
+        type: "text" as const,
+        required: true,
+        placeholder: "Nhập họ và tên",
+        },
+        {
+        name: "PhoneNumber",
+        label: "Số điện thoại",
+        type: "tel" as const,
+        required: true,
+        placeholder: "Nhập số điện thoại",
+        },
+        {
+        name: "Status",
+        label: "Trạng thái",
+        type: "select" as const,
+        required: true,
+        defaultValue: "Unverified",
+        options: [
+            { label: "Đã xác minh", value: "Verified" },
+            { label: "Chưa xác minh", value: "Unverified" },
+        ],
+        },
+        {
+        name: "StatusWork",
+        label: "Trạng thái làm việc",
+        type: "select" as const,
+        required: true,
+        defaultValue: "Active",
+        options: [
+            { label: "Hoạt động", value: "Active" },
+            { label: "Không hoạt động", value: "Inactive" },
+        ],
+        },
+        {
+        name: "RoleID",
+        label: "Vai trò",
+        type: "select" as const,
+        required: true,
+        options: roleOptions.map((role) => ({
+            label: role.RoleName,
+            value: role.RoleID.toString(),
+        })),
+        },
+        {
+        name: "gender",
+        label: "Giới tính",
+        type: "select" as const,
+        options: [
+            { label: "Nam", value: "male" },
+            { label: "Nữ", value: "female" },
+            { label: "Khác", value: "other" },
+        ],
+        },
+        {
+        name: "JoinDate",
+        label: "Ngày tham gia",
+        type: "date" as const,
+        defaultValue: new Date().toISOString().split('T')[0],
+        },
+        {
+        name: "avatar",
+        label: "Ảnh đại diện",
+        type: "file" as const,
+        span: 2 as const,
+        },
+  ];
+
 // Columns cho DetailModal
   const userDetailColumns = [
     { label: "ID", key: "UserID" },
@@ -412,13 +486,13 @@ const columns = [
       render: (value: string) => value === 'Active' ? 'Hoạt động' : 'Không hoạt động'
     },
     { label: "Ngày tham gia", key: "JoinDate" },
-    { 
-      label: "Tổng chi tiêu", 
-      key: "TotalSpent",
-      render: (value: number) => value.toLocaleString('vi-VN') + ' ₫'
-    },
-    { label: "Điểm thưởng", key: "LoyaltyPoints" },
+   
   ];
+
+  const initialFormData = userColumns.reduce((acc, col) => {
+    acc[col.name] = col.defaultValue || "";
+    return acc;
+  }, {} as { [key: string]: any });
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg">
@@ -446,6 +520,8 @@ const columns = [
       {/* Add User Button */}
       <AddNewUser 
         onAdd={handleAddUser}
+        initialFormData={initialFormData}
+        columns={userColumns}
         roleOptions={roleOptions}
       />
 
