@@ -4,6 +4,7 @@ import ClientDashboard from "../client/pages/ClientDashboard";
 import AdminDashboard from "../admin/pages/AdminDashboard";
 import DefaultPage from "../admin/pages/DefaultPage";
 import UserList from "../admin/pages/Admin/UserManagement/userList";
+import CustomerList from "../admin/pages/Admin/UserManagement/customerList";
 import TableTypeList from "../admin/pages/Admin/TableManagement/TableType/tableTypeList";
 import TableList from "../admin/pages/Admin/TableManagement/tableList";
 import RevenueDashboard from "../admin/pages/Admin/RevenueStatistics/revenueStatisticsList";
@@ -42,6 +43,11 @@ const adminRoutes = [
     path: config.routes.user_list,
     component: UserList,
   },
+  {
+    path: config.routes.customer_list,
+    component: CustomerList,
+  },
+
   {
     path: config.routes.table_type_list,
     component: TableTypeList,
