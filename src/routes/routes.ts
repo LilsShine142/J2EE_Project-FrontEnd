@@ -7,6 +7,7 @@ import UserList from "../admin/pages/Admin/UserManagement/userList";
 import CustomerList from "../admin/pages/Admin/UserManagement/customerList";
 import TableTypeList from "../admin/pages/Admin/TableManagement/TableType/tableTypeList";
 import TableList from "../admin/pages/Admin/TableManagement/tableList";
+import RevenueDashboard from "../admin/pages/Admin/RevenueStatistics/revenueStatisticsList";
 // Các route sử dụng layout HomeLayout
 const layoutRoutes = [
   {
@@ -54,6 +55,10 @@ const adminRoutes = [
   {
     path: config.routes.table_list,
     component: TableList,
+  },
+  {
+    path: config.routes.revenue_statistics,
+    component: RevenueDashboard,
   },
 ];
 
