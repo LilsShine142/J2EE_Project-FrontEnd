@@ -50,10 +50,6 @@ const adminRoutes = [
     component: TableList,
   },
   {
-    path: config.routes.table_type_detail,
-    component: DefaultPage,
-  },
-  {
     path: config.routes.table_type_add,
     component: DefaultPage,
   },

@@ -17,7 +17,9 @@ const routes = {
   test_default: "/admin/test_default",
   // admin_users: '/admin/users',
   not_found: "*",
+  // Table Management
   table_type_list: "/admin/table-types",
+  table_type_add: "/admin/table-types/add",
   table_list: "/admin/tables",
 };
 
