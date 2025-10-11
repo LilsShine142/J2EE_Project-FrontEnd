@@ -6,6 +6,7 @@ import DefaultPage from "../admin/pages/DefaultPage";
 import UserList from "../admin/pages/Admin/UserManagement/userList";
 import TableTypeList from "../admin/pages/Admin/TableManagement/TableType/tableTypeList";
 import TableList from "../admin/pages/Admin/TableManagement/tableList";
+import RevenueDashboard from "../admin/pages/Admin/RevenueStatistics/revenueStatisticsList";
 // Các route sử dụng layout HomeLayout
 const layoutRoutes = [
   {
@@ -50,8 +51,8 @@ const adminRoutes = [
     component: TableList,
   },
   {
-    path: config.routes.table_type_add,
-    component: DefaultPage,
+    path: config.routes.revenue_statistics,
+    component: RevenueDashboard,
   },
 ];
 

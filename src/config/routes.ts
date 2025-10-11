@@ -21,6 +21,8 @@ const routes = {
   table_type_list: "/admin/table-types",
   table_type_add: "/admin/table-types/add",
   table_list: "/admin/tables",
+  // revenue statistics
+  revenue_statistics: "/admin/statistics",
 };
 
 export default routes;
