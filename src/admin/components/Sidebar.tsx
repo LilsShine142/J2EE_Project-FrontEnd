@@ -38,20 +38,15 @@ const AdminSidebar: React.FC = () => {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
-  const items: MenuProps["items"] = [
-    getItem("Quản lý Người dùng", "sub1", <UserOutlined />, [
-      getItem(
-        <NavLink to="/admin/test_default">Test default page</NavLink>,
-        "0"
-      ),
-      getItem(<NavLink to="/admin/users">Tất cả người dùng</NavLink>, "1"),
-      getItem(<NavLink to="/admin/add-user">Thêm người dùng mới</NavLink>, "2"),
-const items: MenuProps['items'] = [
-    getItem('Quản lý Người dùng', 'sub1', <UserOutlined />, [
-      getItem(<NavLink to="/admin/test_default">Test default page</NavLink>, '0'),
-      getItem(<NavLink to="/admin/customers">Tất cả khách hàng</NavLink>, '1'),
-      getItem(<NavLink to="/admin/users">Tất cả nhân viên</NavLink>, '2'),
-    ]),
+const items: MenuProps["items"] = [
+  getItem("Quản lý Người dùng", "sub1", <UserOutlined />, [
+    getItem(
+      <NavLink to="/admin/test_default">Test default page</NavLink>,
+      "0"
+    ),
+    getItem(<NavLink to="/admin/users">Tất cả người dùng</NavLink>, "1"),
+    getItem(<NavLink to="/admin/add-user">Thêm người dùng mới</NavLink>, "2"),
+  ]),
     getItem("Quản lý Vai trò và Quyền", "sub2", <SettingOutlined />, [
       getItem(<NavLink to="/admin/roles">Danh sách vai trò</NavLink>, "3"),
       getItem(<NavLink to="/admin/permissions">Danh sách quyền</NavLink>, "4"),
