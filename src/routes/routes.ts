@@ -8,6 +8,9 @@ import CustomerList from "../admin/pages/Admin/UserManagement/customerList";
 import TableTypeList from "../admin/pages/Admin/TableManagement/TableType/tableTypeList";
 import TableList from "../admin/pages/Admin/TableManagement/tableList";
 import RevenueDashboard from "../admin/pages/Admin/RevenueStatistics/revenueStatisticsList";
+import AuthPage from "../client/pages/AuthPage";
+import DishDetailsPage from "../client/pages/DishDetailsPage";
+import CartPage from "../client/pages/CartPage";
 // Các route sử dụng layout HomeLayout
 const layoutRoutes = [
   {
@@ -22,7 +25,16 @@ const standaloneRoutes = [
     path: config.routes.not_found,
     component: NotFoundPage,
   },
-  // { path: config.routes.login, component: Login },
+  { path: config.routes.authPage, component: AuthPage },
+  ,
+  {
+    path: config.routes.dish_detail,  // /client/dish/:slug
+    component: DishDetailsPage,
+  },
+  {
+    path: config.routes.cart,  // /client/cart
+    component: CartPage,
+  },
   // { path: config.routes.register, component: Register },
   // { path: config.routes.account, component: Account },
   // { path: config.routes.account_profile, component: Profile },

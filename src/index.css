@@ -133,3 +133,86 @@ a:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
+
+
+
+/* === BOOKING BUTTONS === */
+.booking-login-btn {
+  background-color: transparent !important;
+  color: #ea580c !important;
+  /* orange-600 */
+  border-color: #ea580c !important;
+}
+
+.booking-login-btn:hover {
+  background-color: #ea580c !important;
+  color: white !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3) !important;
+}
+
+.booking-book-btn {
+  background: linear-gradient(to right, #f97316, #f59e0b) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.booking-book-btn:hover {
+  background: linear-gradient(to right, #ea580c, #d97706) !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4) !important;
+}
+
+/* === BOOKING FORM BUTTONS === */
+.booking-cancel-btn {
+  background-color: #f9f9f9 !important;
+  color: #555 !important;
+  border-color: #d1d5db !important;
+}
+
+.booking-cancel-btn:hover {
+  background-color: #6b7280 !important;
+  /* gray-500 */
+  color: white !important;
+  border-color: #6b7280 !important;
+  transform: scale(1.05) !important;
+}
+
+.booking-confirm-btn {
+  background: linear-gradient(to right, #f97316, #f59e0b) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.booking-confirm-btn:hover {
+  background: linear-gradient(to right, #ea580c, #d97706) !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4) !important;
+}
+
+/* === BOOKING TAGS - HOVER ĐẬM HƠN === */
+.booking-tag-btn {
+  background-color: #facc15 !important;
+  /* yellow-400 */
+  color: #451a03 !important;
+  /* gray-900 */
+  /* border: 1px solid #f59e0b !important; */
+  /* yellow-500 viền nhẹ */
+}
+
+.booking-tag-btn:hover {
+  background-color: #eab308 !important;
+  /* yellow-500 */
+  color: #1f2937 !important;
+  /* gray-800 */
+  border-color: #d97706 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3) !important;
+}
+
+
+
+
+
+
+

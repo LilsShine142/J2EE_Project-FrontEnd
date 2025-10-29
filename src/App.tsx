@@ -16,12 +16,12 @@ const App: React.FC = () => {
         })}
 
           {/* Các route không dùng chung layout home */}
-          {/* {standaloneRoutes.map((route, index) => {
+          {standaloneRoutes.map((route, index) => {
             const Element = route.component;
             return (
               <Route key={index} path={route.path} element={<Element />} />
             );
-          })} */}
+          })}
         {/* Các route dùng chung layout home, là các frame trong sidebar ở admin*/}
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
