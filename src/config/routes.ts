@@ -6,6 +6,11 @@ const routes = {
 
   // Client
   client_dashboard: "/client/dashboard",
+  authPage: "/client/auth",
+
+  // Dish & Cart routes
+  dish_detail: "/client/dish/:slug",  // Dynamic route với slug
+  cart: "/client/cart",
   
   // Admin
   admin_dashboard: "/admin/dashboard",

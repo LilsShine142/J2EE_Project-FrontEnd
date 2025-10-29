@@ -2,7 +2,8 @@ import React from 'react';
 import Header from '../components/Header';
 import AboutSection from '../components/AboutSection';
 import MenuSection from '../components/MenuSection';
-import ReservationSection from '../components/ReservationSection';
+import PopularDishesSection from '../components/PopularDishesSection';
+import IntroductionSection from '../components/IntroductionSection';
 import Footer from '../components/Footer';
 
 const ClientDashboard: React.FC = () => {
@@ -11,8 +12,9 @@ const ClientDashboard: React.FC = () => {
       <Header />
       <main>
         <AboutSection />
+        <IntroductionSection />
+        <PopularDishesSection />
         <MenuSection />
-        <ReservationSection />
       </main>
       <Footer />
     </div>
