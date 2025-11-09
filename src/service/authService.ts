@@ -156,36 +156,24 @@ export const register = async (
   fullName: string,
   email: string,
   password: string,
-  phone: string
+  phoneNumber: string,
+  statusId: number,
+  statusWork: string,
+  roleId: number
 ): Promise<void> => {
-  const response = await axiosInstance.post<ApiResponse<null>>("/auth/register", {
+  const response = await axiosInstance.post<ApiResponse<null>>("/users/register", {
     fullName,
     email,
     password,
-    phone,
+    phoneNumber,
+    statusId,
+    statusWork,
+    roleId,
   });
 
   if (!response.data.success) {
     throw new Error(response.data.message || "Đăng ký thất bại");
   }
-};
-
-// === ĐĂNG NHẬP GOOGLE ===
-export const loginWithGoogle = async (googleToken: string): Promise<AuthData> => {
-  const response = await axiosInstance.post<ApiResponse<{ token: string; user: User; googleAttributes?: any }>>(
-    "/auth/google",
-    { token: googleToken }
-  );
-
-  if (!response.data.success) {
-    throw new Error(response.data.message || "Đăng nhập Google thất bại");
-  }
-
-  const { token, user, googleAttributes } = response.data.data;
-  if (!token || !user) throw new Error("Thiếu token hoặc user");
-
-  saveAuthData(token, user, googleAttributes);
-  return { token, user, googleAttributes };
 };
 
 // === ĐĂNG NHẬP FACEBOOK ===

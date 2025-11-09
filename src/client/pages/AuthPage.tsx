@@ -1,12 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Tabs, Typography, Spin, ConfigProvider, message } from 'antd';
 import AuthForm from '../components/AuthForm/AuthForm';
 import { useAuth } from '../../hooks/useAuth';
+import { useSearchParams } from 'react-router-dom';
 
 const { Title } = Typography;
 
 const AuthPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlTab = searchParams.get('tab');
+
+  // Đồng bộ tab từ URL
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>(
+    urlTab === 'register' ? 'register' : 'login'
+  );
+
+  // Cập nhật URL khi đổi tab
+  useEffect(() => {
+    if (activeTab === 'register') {
+      setSearchParams({ tab: 'register' });
+    } else {
+      setSearchParams({ tab: 'login' });
+    }
+  }, [activeTab, setSearchParams]);
+
   const {
     login,
     register,
@@ -37,18 +54,22 @@ const AuthPage: React.FC = () => {
         fullName: values.fullName,
         email: values.email,
         password: values.password,
-        phone: values.phone,
+        phoneNumber: values.phone,
+        statusId: 1,
+        statusWork: 'Customer',
+        roleId: 1,
       },
       {
         onSuccess: () => {
-          setActiveTab('login'); // TỰ ĐỘNG CHUYỂN TAB
+          message.success('Đăng ký thành công! Vui lòng đăng nhập.', 2);
+          setActiveTab('login');
+          setSearchParams({ tab: 'login' });
         },
       }
     );
   };
 
   const loading = activeTab === 'login' ? isLoginLoading : isRegisterLoading;
-  const hasError = activeTab === 'login' ? isLoginError : isRegisterError;
 
   const tabItems = [
     {
@@ -58,7 +79,7 @@ const AuthPage: React.FC = () => {
         <div className="relative">
           <Spin spinning={loading} tip="Đang xác thực..." size="large">
             <div className="p-1">
-              <AuthForm isLogin={true} onFinish={handleLogin} />
+              <AuthForm isLogin={true} onFinish={handleLogin} activeTab={activeTab} setActiveTab={setActiveTab} />
             </div>
           </Spin>
         </div>
@@ -71,7 +92,7 @@ const AuthPage: React.FC = () => {
         <div className="relative">
           <Spin spinning={loading} tip="Đang tạo tài khoản..." size="large">
             <div className="p-1">
-              <AuthForm isLogin={false} onFinish={handleRegister} />
+              <AuthForm isLogin={false} onFinish={handleRegister} activeTab={activeTab} setActiveTab={setActiveTab} />
             </div>
           </Spin>
         </div>
@@ -83,12 +104,12 @@ const AuthPage: React.FC = () => {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: '#1890ff',
+          colorPrimary: '#f59e0b',
           borderRadius: 12,
         },
       }}
     >
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50 py-12 px-4 flex items-center justify-center">
         <div className="max-w-md w-full">
           <Card
             className="shadow-2xl border-0 overflow-hidden"
@@ -99,7 +120,7 @@ const AuthPage: React.FC = () => {
             }}
           >
             <div className="text-center mb-6 pt-6">
-              <Title level={3} className="text-blue-600 font-bold tracking-wide">
+              <Title level={3} className="text-amber-600 font-bold tracking-wide">
                 Nhà Hàng J2EE
               </Title>
               <p className="text-gray-500 text-sm">Quản lý đặt bàn & gọi món</p>
@@ -107,7 +128,7 @@ const AuthPage: React.FC = () => {
 
             <Tabs
               activeKey={activeTab}
-              onChange={(key) => !loading && setActiveTab(key as 'login' | 'register')}
+              onChange={(key) => setActiveTab(key as 'login' | 'register')}
               items={tabItems}
               centered
               size="large"
@@ -127,3 +148,4 @@ const AuthPage: React.FC = () => {
 };
 
 export default AuthPage;
+
