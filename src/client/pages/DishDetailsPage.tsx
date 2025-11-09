@@ -19,7 +19,6 @@ const DishDetailsPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
-  // Default product if no item selected
   const defaultItem: MenuItem = {
     image: 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=600&q=80',
     name: 'To Make Delicious Food Item',
@@ -30,7 +29,7 @@ const DishDetailsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    // Load from sessionStorage based on slug
+   
     const storedItem = sessionStorage.getItem('selectedMenuItem');
     if (storedItem) {
       const item = JSON.parse(storedItem);
@@ -88,7 +87,6 @@ const DishDetailsPage: React.FC = () => {
     );
   }
 
-  // Breadcrumbs for hero section
   const breadcrumbs = [
     { label: 'Home', href: '/client/dashboard' },
     { label: menuItem.name, active: true }

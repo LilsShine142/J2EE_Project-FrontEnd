@@ -1,54 +1,128 @@
 import React, { useState } from 'react';
-import { Card, Tabs, Typography, message } from 'antd';
+import { Card, Tabs, Typography, Spin, ConfigProvider, message } from 'antd';
 import AuthForm from '../components/AuthForm/AuthForm';
+import { useAuth } from '../../hooks/useAuth';
+
+const { Title } = Typography;
 
 const AuthPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('login');
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const {
+    login,
+    register,
+    isLoginLoading,
+    isRegisterLoading,
+    isLoginError,
+    isRegisterError,
+  } = useAuth();
 
-  // Handle Login
   const handleLogin = (values: { email: string; password: string }) => {
-    console.log('Login data:', values);
-    message.success('Đăng nhập thành công!', 2);
+    login(values);
   };
 
-  // Handle Register
-  const handleRegister = (values: { name: string; email: string; password: string; confirmPassword: string; phone: string }) => {
+  const handleRegister = (values: {
+    fullName: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    phone: string;
+  }) => {
     if (values.password !== values.confirmPassword) {
       message.error('Mật khẩu không khớp!', 2);
       return;
     }
-    console.log('Register data:', values);
-    message.success('Đăng ký thành công!', 2);
-    setActiveTab('login');
+
+    register(
+      {
+        fullName: values.fullName,
+        email: values.email,
+        password: values.password,
+        phone: values.phone,
+      },
+      {
+        onSuccess: () => {
+          setActiveTab('login'); // TỰ ĐỘNG CHUYỂN TAB
+        },
+      }
+    );
   };
+
+  const loading = activeTab === 'login' ? isLoginLoading : isRegisterLoading;
+  const hasError = activeTab === 'login' ? isLoginError : isRegisterError;
 
   const tabItems = [
     {
       key: 'login',
       label: 'Đăng nhập',
-      children: <AuthForm isLogin={true} onFinish={handleLogin} />,
+      children: (
+        <div className="relative">
+          <Spin spinning={loading} tip="Đang xác thực..." size="large">
+            <div className="p-1">
+              <AuthForm isLogin={true} onFinish={handleLogin} />
+            </div>
+          </Spin>
+        </div>
+      ),
     },
     {
       key: 'register',
       label: 'Đăng ký',
-      children: <AuthForm isLogin={false} onFinish={handleRegister} />,
+      children: (
+        <div className="relative">
+          <Spin spinning={loading} tip="Đang tạo tài khoản..." size="large">
+            <div className="p-1">
+              <AuthForm isLogin={false} onFinish={handleRegister} />
+            </div>
+          </Spin>
+        </div>
+      ),
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 py-12 px-4 flex items-center justify-center">
-      <div className="max-w-md w-full">
-        <Card className="shadow-xl border-0">
-          <Tabs
-            activeKey={activeTab}
-            onChange={setActiveTab}
-            items={tabItems}
-            centered
-            size="large"
-          />
-        </Card>
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#1890ff',
+          borderRadius: 12,
+        },
+      }}
+    >
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4 flex items-center justify-center">
+        <div className="max-w-md w-full">
+          <Card
+            className="shadow-2xl border-0 overflow-hidden"
+            style={{
+              borderRadius: 16,
+              backdropFilter: 'blur(10px)',
+              background: 'rgba(255, 255, 255, 0.95)',
+            }}
+          >
+            <div className="text-center mb-6 pt-6">
+              <Title level={3} className="text-blue-600 font-bold tracking-wide">
+                Nhà Hàng J2EE
+              </Title>
+              <p className="text-gray-500 text-sm">Quản lý đặt bàn & gọi món</p>
+            </div>
+
+            <Tabs
+              activeKey={activeTab}
+              onChange={(key) => !loading && setActiveTab(key as 'login' | 'register')}
+              items={tabItems}
+              centered
+              size="large"
+              tabBarGutter={32}
+              className="px-2"
+              animated={{ inkBar: true, tabPane: true }}
+            />
+          </Card>
+
+          <div className="text-center mt-6 text-xs text-gray-400">
+            © 2025 J2EE Restaurant. All rights reserved.
+          </div>
+        </div>
       </div>
-    </div>
+    </ConfigProvider>
   );
 };
 
