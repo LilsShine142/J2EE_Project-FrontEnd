@@ -10,20 +10,19 @@ interface BannerImage {
   caption?: string;
 }
 
-// Danh sách ảnh mẫu cho banner (bạn có thể thay bằng URL ảnh thực tế)
 const bannerImages: BannerImage[] = [
   {
-    src: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4',
+    src: 'https://res.cloudinary.com/ddlso6ofq/image/upload/v1762694406/about_banner1_kroypq.jpg',
     alt: 'Nhà hàng sang trọng',
     caption: 'Thưởng thức ẩm thực đỉnh cao',
   },
   {
-    src: 'https://images.unsplash.com/photo-1552566626-52f8b828add9',
+    src: 'https://res.cloudinary.com/ddlso6ofq/image/upload/v1762694425/about_banner2_sfmsgs.jpg',
     alt: 'Món ăn tinh tế',
     caption: 'Trải nghiệm hương vị độc đáo',
   },
   {
-    src: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0',
+    src: 'https://res.cloudinary.com/ddlso6ofq/image/upload/v1762694405/about_banner3_g4tiwn.jpg',
     alt: 'Không gian ấm cúng',
     caption: 'Không gian hoàn hảo cho mọi dịp',
   },

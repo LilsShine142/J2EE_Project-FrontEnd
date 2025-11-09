@@ -1,6 +1,5 @@
-// AuthForm.tsx
 import React, { useState } from 'react';
-import { Form, Input, Button, message } from 'antd';
+import { Form, Input, Button, message, Spin } from 'antd';
 import {
   UserOutlined,
   MailOutlined,
@@ -9,37 +8,28 @@ import {
   GoogleOutlined,
   FacebookOutlined,
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthFormProps {
   isLogin: boolean;
   onFinish: (values: any) => void;
 }
 
-interface LoginForm {
-  email: string;
-  password: string;
-}
-
-interface RegisterForm {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  phone: string;
-}
-
 const AuthForm: React.FC<AuthFormProps> = ({ isLogin, onFinish }) => {
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSocialLogin = (provider: string) => {
-    console.log(`Đăng nhập với ${provider}...`);
-    message.info(`Đang xử lý đăng nhập với ${provider}`, 2);
-    // TODO: Integrate with Google/Facebook API
+  
+  const handleSocialLogin = (provider: 'google' | 'facebook') => {
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    // redirect đến endpoint khởi tạo OAuth2
+    window.location.href = `${baseUrl}/oauth2/authorization/${provider}`;
   };
 
   return (
-    <div className="p-6">
-      <Form
+    <div className="relative p-6 max-w-md mx-auto">
+        <Form
         form={form}
         layout="vertical"
         onFinish={onFinish}
@@ -141,30 +131,32 @@ const AuthForm: React.FC<AuthFormProps> = ({ isLogin, onFinish }) => {
             type="primary"
             htmlType="submit"
             size="large"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-all duration-200 rounded-lg"
+            className="w-full bg-blue-600 hover:bg-blue-700"
+            disabled={loading}
           >
             {isLogin ? 'Đăng nhập' : 'Đăng ký'}
           </Button>
         </Form.Item>
 
-        <div className="text-center my-4">
-          <span className="text-gray-500">Hoặc {isLogin ? 'đăng nhập' : 'đăng ký'} với</span>
+        <div className="text-center my-4 text-gray-500">
+          Hoặc {isLogin ? 'đăng nhập' : 'đăng ký'} với
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           <Button
             icon={<GoogleOutlined />}
             size="large"
-            className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold transition-all duration-200 rounded-lg"
-            onClick={() => handleSocialLogin('Google')}
+            className="flex-1 bg-red-500 hover:bg-red-600 text-white border-0"
+            onClick={() => handleSocialLogin('google')}
           >
             Google
           </Button>
+
           <Button
             icon={<FacebookOutlined />}
             size="large"
-            className="w-full bg-blue-800 hover:bg-blue-900 text-white font-semibold transition-all duration-200 rounded-lg"
-            onClick={() => handleSocialLogin('Facebook')}
+            className="flex-1 bg-blue-800 hover:bg-blue-900 text-white border-0"
+            onClick={() => handleSocialLogin('facebook')}
           >
             Facebook
           </Button>

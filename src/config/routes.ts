@@ -3,7 +3,10 @@ const routes = {
     login
     register
     */
-
+  //Callback login
+  callback_login: '/oauth/:provider/callback',
+  
+  
   // Client
   client_dashboard: "/client/dashboard",
   authPage: "/client/auth",
@@ -11,7 +14,15 @@ const routes = {
   // Dish & Cart routes
   dish_detail: "/client/dish/:slug",  // Dynamic route với slug
   cart: "/client/cart",
+
+  // User Profile
+  profile: "/client/profile",
+
+  // My Reservations
+  myreservations: "/client/my-reservations",
   
+  client_layout: "/client",
+
   // Admin
   admin_dashboard: "/admin/dashboard",
   // Admin role

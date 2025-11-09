@@ -36,3 +36,9 @@ export interface BookingFormData {
   phone: string;
   notes?: string;
 }
+
+// route type for lazy loading
+export type AppRoute = {
+  path: string;
+  component: React.FC<any>;
+};
