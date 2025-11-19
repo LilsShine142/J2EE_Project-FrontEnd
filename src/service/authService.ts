@@ -20,6 +20,19 @@ const roleIdToName: Record<number, RoleName> = {
   4: RoleName.CUSTOMER,
 };
 
+// === Helper: Tạo config với token (dùng chung) ===
+export const configToken = (token: string | null) => {
+  console.log('Configuring token for request:', token);
+  if (!token) {
+    throw new Error("Token không tồn tại. Vui lòng đăng nhập lại.");
+  }
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
+
 // === ROUTE THEO VAI TRÒ ===
 export const getDefaultRoute = (roleName: RoleName): string => {
   const routeMap: Record<RoleName, string> = {
@@ -279,6 +292,10 @@ export const checkAuthToken = (): boolean => {
 export const hasRole = (roleName: RoleName): boolean => {
   const user = getCurrentUser();
   return user?.RoleName === roleName;
+};
+
+export const getAuthToken = (): string | null => {
+  return Cookies.get("authToken") || null;
 };
 
 export const isAdmin = (): boolean => hasRole(RoleName.ADMIN);

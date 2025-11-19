@@ -1,5 +1,5 @@
 import { axiosInstance } from "../lib/axios/axios";
-import { getCurrentUser } from "./authService";
+import { getCurrentUser, configToken } from "./authService";
 
 // === Request & Response DTOs ===
 export interface BookingRequestDTO {
@@ -10,7 +10,7 @@ export interface BookingRequestDTO {
 }
 
 export interface BookingDTO {
-  bookingId: number;
+  bookingID: number;
   userId: number;
   tableId: number;
   tableName: string;
@@ -39,24 +39,14 @@ interface ApiResponse<T> {
   data: T;
 }
 
-// === Helper: Lấy token an toàn từ cookie ===
-const getAuthToken = (): string | null => {
-  if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(/(?:^|; )authToken=([^;]*)/);
-  return match ? decodeURIComponent(match[1]) : null;
-};
-
-// === Helper: Tạo config với token (dùng chung) ===
-const configToken = (token: string | null) => {
-  console.log('Configuring token for request:', token);
-  if (!token) {
-    throw new Error("Token không tồn tại. Vui lòng đăng nhập lại.");
-  }
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
+export const createBooking = async (token: string | null, data: any): Promise<BookingDTO> => {
+  const response = await axiosInstance.post<ApiResponse<BookingDTO>>(
+    '/bookings/reserve',
+    data,
+    configToken(token)
+  );
+  if (!response.data.success) throw new Error(response.data.message);
+  return response.data.data;
 };
 
 // === LẤY BOOKING THEO ID ===
@@ -120,29 +110,45 @@ export const deleteBooking = async (token: string | null, bookingId: number): Pr
 };
 
 // === LẤY DANH SÁCH BOOKING CỦA USER ===
+// export const getBookingsForCurrentUser = async (
+//   token: string | null,
+//   page = 0,
+//   size = 10
+// ): Promise<PageResponse<BookingDTO>> => {
+//   const currentUser = getCurrentUser();
+//   if (!currentUser?.userId) {
+//     throw new Error("Bạn cần đăng nhập để xem đặt bàn");
+//   }
+//   console.log('Getting bookings for user ID:', currentUser.userId);
+//   console.log('Using token:', token);
+//   const response = await axiosInstance.get<ApiResponse<PageResponse<BookingDTO>>>(
+//     `/bookings/user/12`, // Tạm thời gắn cứng id user
+//     {
+//       params: { offset: page * size, limit: size },
+//       ...configToken(token),
+//     }
+//   );
+
+//   if (!response.data.success) {
+//     throw new Error(response.data.message || "Không thể tải danh sách đặt bàn");
+//   }
+
+//   return response.data.data;
+// };
 export const getBookingsForCurrentUser = async (
   token: string | null,
+  userId: number,
   page = 0,
   size = 10
 ): Promise<PageResponse<BookingDTO>> => {
-  const currentUser = getCurrentUser();
-  if (!currentUser?.userId) {
-    throw new Error("Bạn cần đăng nhập để xem đặt bàn");
-  }
-  console.log('Getting bookings for user ID:', currentUser.userId);
-  console.log('Using token:', token);
   const response = await axiosInstance.get<ApiResponse<PageResponse<BookingDTO>>>(
-    `/bookings/user/12`, // Tạm thời gắn cứng id user
+    `/bookings/user/${userId}`,
     {
       params: { offset: page * size, limit: size },
       ...configToken(token),
     }
   );
-
-  if (!response.data.success) {
-    throw new Error(response.data.message || "Không thể tải danh sách đặt bàn");
-  }
-
+  if (!response.data.success) throw new Error(response.data.message);
   return response.data.data;
 };
 
