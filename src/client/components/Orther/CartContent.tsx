@@ -1,5 +1,6 @@
 import React, { useState, useEffect, type JSX } from 'react';
 import CartTable from './CartTable';
+import { Button, message, Modal } from 'antd';
 
 interface CartItem {
   mealID: number;
@@ -13,17 +14,17 @@ interface CartItem {
 }
 
 interface CartContentProps {
+  currentBooking: any;
   onContinueShopping: () => void;
   onCheckout: () => void;
+  onRequireBooking: () => void;
+  onOpenMealSelection: () => void;
+  onCancelBooking: () => void;
+  isCancelling?: boolean;
 }
 
-// === SUB-COMPONENTS ===
 const DeleteButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
-  <button
-    onClick={onClick}
-    className="text-gray-400 hover:text-red-600 transition-colors duration-200"
-    title="Xóa món"
-  >
+  <button onClick={onClick} className="text-gray-400 hover:text-red-600 transition-colors" title="Xóa món">
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
     </svg>
@@ -38,55 +39,48 @@ const QuantityControl: React.FC<{
   <div className="flex items-center justify-center gap-2 select-none">
     <button
       onClick={onDecrease}
-      className="w-8 h-8 flex items-center justify-center border border-gray-300 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="w-8 h-8 flex items-center justify-center border border-gray-300 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
       disabled={quantity <= 1}
-    >
-      −
-    </button>
+    >−</button>
     <span className="w-12 text-center font-medium">{quantity}</span>
     <button
       onClick={onIncrease}
       className="w-8 h-8 flex items-center justify-center border border-gray-300 hover:bg-gray-100 rounded transition-colors"
-    >
-      +
-    </button>
+    >+</button>
   </div>
 );
 
-const CartContent: React.FC<CartContentProps> = ({ onContinueShopping, onCheckout }) => {
+const CartContent: React.FC<CartContentProps> = ({
+  currentBooking,
+  onContinueShopping,
+  onCheckout,
+  onRequireBooking,
+  onOpenMealSelection,
+  onCancelBooking,
+  isCancelling = false,
+}) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [couponCode, setCouponCode] = useState('');
 
-  // === 1. LẤY DỮ LIỆU TỪ sessionStorage ===
+  // === LẤY GIỎ HÀNG ===
   useEffect(() => {
     const loadCart = () => {
-      try {
-        const stored = sessionStorage.getItem('cart');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed)) {
-            setCartItems(parsed);
-          }
-        }
-      } catch (err) {
-        console.error('Lỗi đọc giỏ hàng:', err);
-        setCartItems([]);
+      const stored = sessionStorage.getItem('cart');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) setCartItems(parsed);
       }
     };
-
     loadCart();
-
     const handleUpdate = () => loadCart();
     window.addEventListener('storage', handleUpdate);
     window.addEventListener('cartUpdated', handleUpdate);
-
     return () => {
       window.removeEventListener('storage', handleUpdate);
       window.removeEventListener('cartUpdated', handleUpdate);
     };
   }, []);
 
-  // === 2. CẬP NHẬT sessionStorage ===
   const updateSessionCart = (items: CartItem[]) => {
     if (items.length > 0) {
       sessionStorage.setItem('cart', JSON.stringify(items));
@@ -96,39 +90,33 @@ const CartContent: React.FC<CartContentProps> = ({ onContinueShopping, onCheckou
     window.dispatchEvent(new Event('cartUpdated'));
   };
 
-  // === 3. XỬ LÝ XÓA & SỐ LƯỢNG ===
   const removeItem = (mealID: number) => {
-    const newItems = cartItems.filter((item) => item.mealID !== mealID);
+    const newItems = cartItems.filter(i => i.mealID !== mealID);
     setCartItems(newItems);
     updateSessionCart(newItems);
-    alert('Đã xóa món khỏi giỏ hàng!');
+    message.success('Đã xóa món!');
   };
 
   const updateQuantity = (mealID: number, delta: number) => {
-    const newItems = cartItems.map((item) => {
-      if (item.mealID === mealID) {
-        const newQty = item.quantity + delta;
-        return { ...item, quantity: newQty < 1 ? 1 : newQty };
+    const newItems = cartItems.map(i => {
+      if (i.mealID === mealID) {
+        const newQty = i.quantity + delta;
+        return { ...i, quantity: newQty < 1 ? 1 : newQty };
       }
-      return item;
+      return i;
     });
     setCartItems(newItems);
     updateSessionCart(newItems);
   };
 
-  // === 4. TÍNH TOÁN ===
   const parsePrice = (priceStr: string): number => {
     return parseFloat(priceStr.replace(/[^0-9.-]+/g, '')) || 0;
   };
 
-  const subtotal = cartItems.reduce((sum, item) => {
-    return sum + parsePrice(item.price) * item.quantity;
-  }, 0);
-
-  const prepayment = Math.round(subtotal * 0.3); // 30%
+  const subtotal = cartItems.reduce((sum, item) => sum + parsePrice(item.price) * item.quantity, 0);
+  const prepayment = Math.round(subtotal * 0.3);
   const remaining = subtotal - prepayment;
 
-  // === 5. CẤU HÌNH BẢNG ===
   const TABLE_COLUMNS = [
     { key: 'delete', label: '', align: 'left' as const },
     { key: 'image', label: 'Hình', align: 'left' as const },
@@ -138,160 +126,155 @@ const CartContent: React.FC<CartContentProps> = ({ onContinueShopping, onCheckou
     { key: 'subtotal', label: 'Thành tiền', align: 'right' as const },
   ];
 
-  // === 6. RENDER CELL ===
   const renderCell = (item: CartItem, columnKey: string): JSX.Element => {
-    const cellStyles = {
-      default: 'py-5 px-3',
-      center: 'py-5 px-3 text-center',
-      right: 'py-5 px-3 text-right',
-    };
-
     const price = parsePrice(item.price);
     const subtotalItem = price * item.quantity;
 
     const cells: Record<string, JSX.Element> = {
-      delete: (
-        <td className={cellStyles.default}>
-          <DeleteButton onClick={() => removeItem(item.mealID)} />
-        </td>
-      ),
-      image: (
-        <td className={cellStyles.default}>
-          <img
-            src={item.image}
-            alt={item.name}
-            className="w-14 h-14 object-cover rounded-md shadow-sm"
-            onError={(e) => {
-              e.currentTarget.src = 'https://via.placeholder.com/56?text=No+Image';
-            }}
-          />
-        </td>
-      ),
-      name: (
-        <td className={cellStyles.default}>
-          <div>
-            <p className="font-medium text-gray-900">{item.name}</p>
-            {item.description && (
-              <p className="text-sm text-gray-500 mt-1">{item.description}</p>
-            )}
-          </div>
-        </td>
-      ),
-      unitPrice: (
-        <td className={cellStyles.center}>
-          <span className="font-semibold text-amber-600">
-            {item.price.includes('$')
-              ? item.price
-              : `${parseInt(item.price).toLocaleString()}₫`}
-          </span>
-        </td>
-      ),
-      quantity: (
-        <td className={cellStyles.center}>
-          <QuantityControl
-            quantity={item.quantity}
-            onIncrease={() => updateQuantity(item.mealID, 1)}
-            onDecrease={() => updateQuantity(item.mealID, -1)}
-          />
-        </td>
-      ),
-      subtotal: (
-        <td className={cellStyles.right}>
-          <span className="font-semibold text-gray-900">
-            {subtotalItem.toLocaleString()}₫
-          </span>
-        </td>
-      ),
+      delete: <td className="py-5 px-3"><DeleteButton onClick={() => removeItem(item.mealID)} /></td>,
+      image: <td className="py-5 px-3"><img src={item.image} alt={item.name} className="w-14 h-14 object-cover rounded-md" onError={e => e.currentTarget.src = 'https://via.placeholder.com/56?text=No+Image'} /></td>,
+      name: <td className="py-5 px-3"><div><p className="font-medium">{item.name}</p>{item.description && <p className="text-sm text-gray-500 mt-1">{item.description}</p>}</div></td>,
+      unitPrice: <td className="py-5 px-3 text-center"><span className="font-semibold text-amber-600">{item.price.includes('$') ? item.price : `${parseInt(item.price).toLocaleString()}₫`}</span></td>,
+      quantity: <td className="py-5 px-3 text-center"><QuantityControl quantity={item.quantity} onIncrease={() => updateQuantity(item.mealID, 1)} onDecrease={() => updateQuantity(item.mealID, -1)} /></td>,
+      subtotal: <td className="py-5 px-3 text-right"><span className="font-semibold">{subtotalItem.toLocaleString()}₫</span></td>,
     };
-
-    return cells[columnKey] || <td className={cellStyles.default}></td>;
+    return cells[columnKey] || <td></td>;
   };
 
-  // === 7. RENDER KHI TRỐNG ===
-  if (cartItems.length === 0) {
+  // === COMPONENT: THÔNG TIN ĐẶT BÀN + NÚT HỦY ===
+  const BookingInfoCard: React.FC<{ variant?: 'success' | 'warning' }> = ({ variant = 'warning' }) => {
+    const colorClasses = variant === 'success' 
+      ? 'from-green-50 to-emerald-50 border-green-200'
+      : 'from-amber-50 to-orange-50 border-amber-200';
+    
+    const titleColor = variant === 'success' ? 'text-green-900' : 'text-amber-900';
+
+    return (
+      <div className={`bg-gradient-to-r ${colorClasses} p-6 rounded-xl mb-8 border`}>
+        <div className="flex justify-between items-start mb-3">
+          <h3 className={`text-lg font-semibold ${titleColor}`}>Thông tin đặt bàn</h3>
+          <Button
+            danger
+            size="middle"
+            onClick={onCancelBooking}
+            loading={isCancelling}
+            className="hover:scale-105 transition-transform"
+            icon={
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            }
+          >
+            Hủy đặt bàn
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div><strong>Bàn:</strong> {currentBooking.tableName || 'Bàn 1'}</div>
+          <div><strong>Thời gian:</strong> {currentBooking.bookingDate.split('T')[0]} - {currentBooking.startTime.split('T')[1].slice(0,5)}</div>
+          <div><strong>Số khách:</strong> {currentBooking.numberOfGuests} người</div>
+        </div>
+        
+        {variant === 'success' && (
+          <p className="text-sm text-green-700 mt-3">
+            Vui lòng đến quầy để gọi món hoặc bấm nút bên dưới để chọn trước.
+          </p>
+        )}
+      </div>
+    );
+  };
+
+  // === 1. CHƯA ĐẶT BÀN → BẮT BUỘC ĐẶT ===
+  if (!currentBooking) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center">
         <div className="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
           <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </div>
-        <h3 className="text-2xl font-semibold text-gray-800 mb-2">Giỏ hàng trống</h3>
-        <p className="text-gray-600 mb-6">Bạn chưa chọn món nào để đặt bàn.</p>
-        <button
-          onClick={onContinueShopping}
-          className="px-8 py-3 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 transition-colors"
-        >
-          Chọn món ngay
-        </button>
+        <h3 className="text-2xl font-semibold text-gray-800 mb-2">Chưa đặt bàn</h3>
+        <p className="text-gray-600 mb-6">Vui lòng đặt bàn trước khi chọn món.</p>
+        <Button type="primary" size="large" onClick={onRequireBooking} className="bg-amber-600 hover:bg-amber-700">
+          Đặt bàn ngay
+        </Button>
       </div>
     );
   }
 
-  // === 8. RENDER CHÍNH ===
+  // === 2. ĐÃ ĐẶT BÀN NHƯNG CHƯA GỌI MÓN → NÚT "GỌI MÓN" ===
+  if (cartItems.length === 0) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <h2 className="text-3xl font-bold text-gray-900 mb-8">Đặt bàn thành công!</h2>
+
+        <BookingInfoCard variant="success" />
+
+        {/* === NÚT GỌI MÓN === */}
+        <div className="text-center">
+          <Button
+            type="primary"
+            size="large"
+            onClick={onOpenMealSelection}
+            className="bg-amber-600 hover:bg-amber-700 h-12 px-8 text-lg font-semibold"
+          >
+            Gọi món ngay
+          </Button>
+          <p className="text-sm text-gray-500 mt-3">
+            Bạn có thể gọi món tại quán hoặc chọn trước ở đây.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // === 3. ĐÃ GỌI MÓN → THANH TOÁN TRƯỚC 30% ===
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
       <h2 className="text-3xl font-bold text-gray-900 mb-8">Giỏ hàng đặt bàn</h2>
 
-      {/* Bảng giỏ hàng */}
+      <BookingInfoCard variant="warning" />
+
+      {/* === BẢNG GIỎ HÀNG === */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-10">
-        <CartTable
-          columns={TABLE_COLUMNS}
-          data={cartItems}
-          renderCell={renderCell}
-          keyExtractor={(item) => item.mealID}
-        />
+        <CartTable columns={TABLE_COLUMNS} data={cartItems} renderCell={renderCell} keyExtractor={i => i.mealID} />
       </div>
 
-      {/* Phần dưới */}
+      {/* === TỔNG + THANH TOÁN === */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Mã khuyến mãi */}
         <div>
           <h3 className="text-xl font-semibold text-gray-900 mb-4">Mã khuyến mãi</h3>
           <div className="flex gap-3">
             <input
               type="text"
               value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value)}
+              onChange={e => setCouponCode(e.target.value)}
               placeholder="Nhập mã tại quán"
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500 transition-colors"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
             />
-            <button className="px-6 py-3 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 transition-colors whitespace-nowrap">
-              Áp dụng
-            </button>
+            <Button className="bg-amber-600 text-white hover:bg-amber-700">Áp dụng</Button>
           </div>
           <p className="text-xs text-gray-500 mt-2">Chỉ áp dụng khi dùng tại quán</p>
         </div>
 
-        {/* Tổng thanh toán - 30% */}
         <div>
           <h3 className="text-xl font-semibold text-gray-900 mb-4">Tổng thanh toán</h3>
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200 shadow-sm">
-            <div className="flex justify-between items-center mb-3">
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200">
+            <div className="flex justify-between mb-3">
               <span className="text-lg text-gray-700">Tạm tính</span>
-              <span className="text-lg font-medium text-gray-900">
-                {subtotal.toLocaleString()}₫
-              </span>
+              <span className="text-lg font-medium">{subtotal.toLocaleString()}₫</span>
             </div>
-
             <div className="flex justify-between items-center mb-4 p-3 bg-amber-100 rounded-lg">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-amber-800">
-                  Thanh toán trước (30%)
-                </span>
+                <span className="text-sm font-medium text-amber-800">Thanh toán trước (30%)</span>
                 <span className="text-xs bg-amber-600 text-white px-2 py-0.5 rounded-full">Bắt buộc</span>
               </div>
-              <span className="text-xl font-bold text-amber-700">
-                {prepayment.toLocaleString()}₫
-              </span>
+              <span className="text-xl font-bold text-amber-700">{prepayment.toLocaleString()}₫</span>
             </div>
-
             <div className="pt-4 border-t-2 border-dashed border-amber-300">
               <div className="flex justify-between items-center">
                 <span className="text-2xl font-bold text-gray-900">Tổng cộng</span>
-                <span className="text-3xl font-bold text-amber-600">
-                  {subtotal.toLocaleString()}₫
-                </span>
+                <span className="text-3xl font-bold text-amber-600">{subtotal.toLocaleString()}₫</span>
               </div>
               <p className="text-sm text-gray-600 mt-2 text-center">
                 Còn lại <strong>{remaining.toLocaleString()}₫</strong> thanh toán tại quán

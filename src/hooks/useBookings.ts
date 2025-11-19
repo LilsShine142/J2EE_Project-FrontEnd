@@ -1,16 +1,18 @@
-import { useQuery, useMutation, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getBookingsForCurrentUser,
   cancelBooking,
   deleteBooking,
   updateBooking,
   getBookingById,
+  createBooking, 
   type BookingRequestDTO,
 } from '../service/bookingService';
 import { message } from 'antd';
+import { getCurrentUser } from '../service/authService';
 
 export interface Booking {
-  bookingId: number;
+  bookingID: number;
   tableName: string;
   bookingDate: string;
   startTime: string;
@@ -26,16 +28,15 @@ export interface PaginatedBookings {
   total: number;
 }
 
-// CẬP NHẬT: useMyBookings nhận thêm options để truyền enabled
 type UseMyBookingsOptions = {
   enabled?: boolean;
 };
 
 export const useBooking = (token: string | null) => {
-  console.log('useBooking received token:', token);
   const queryClient = useQueryClient();
+  const currentUser = getCurrentUser();
 
-  // 1. LẤY DANH SÁCH ĐẶT BÀN
+  // 1. LẤY DANH SÁCH ĐẶT BÀN CỦA USER (SỬA LỖI ID 12)
   const useMyBookings = (
     page: number,
     size = 5,
@@ -44,14 +45,14 @@ export const useBooking = (token: string | null) => {
     return useQuery<PaginatedBookings, Error>({
       queryKey: ['myBookings', page, size],
       queryFn: async () => {
-        console.log('token in useMyBookings:', token);
-        const token2 = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwc3U5NTIyOEBnbWFpbC5jb20iLCJpYXQiOjE3NjI0MjQzMDMsImV4cCI6MTc2MjQ2MDMwM30.0XrWiMlizUf2wY8LlMbY3_WzzxWK-116auK-bq7H4EY";
         if (!token) throw new Error('Token không hợp lệ');
-        const res = await getBookingsForCurrentUser(token, page, size);
-        console.log('Raw API response:', res.content);
+        if (!currentUser?.userId) throw new Error('Không tìm thấy thông tin người dùng');
+
+        const res = await getBookingsForCurrentUser(token, currentUser.userId, page, size);
         const rawItems = Array.isArray(res?.content) ? res.content : [];
+
         const items: Booking[] = rawItems.map((b: any) => ({
-          bookingId: b.bookingID ?? null,
+          bookingID: b.bookingID ?? null,
           tableName: b.tableName ?? 'Không rõ',
           bookingDate: b.bookingDate ?? '',
           startTime: b.startTime ?? '',
@@ -67,14 +68,43 @@ export const useBooking = (token: string | null) => {
           total: res?.total ?? 0,
         };
       },
-      enabled: (options?.enabled ?? true) && !!token, // CHỜ AUTH + TOKEN
+      enabled: (options?.enabled ?? true) && !!token && !!currentUser?.userId,
       placeholderData: { items: [], total: 0 },
       retry: 1,
       staleTime: 5 * 60 * 1000,
     });
   };
 
-  // 2. HỦY BOOKING + OPTIMISTIC UPDATE
+  // 2. TẠO BOOKING MỚI (MỚI)
+  const useCreateBooking = () => {
+    return useMutation({
+      mutationFn: (data: {
+        userID: number;
+        tableID: number;
+        bookingDate: string;
+        startTime: string;
+        endTime: string;
+        numberOfGuests: number;
+        notes?: string;
+        initialPayment?: number;
+        paymentMethod?: string;
+        meals?: Array<{ mealID: number; quantity: number }>;
+      }) => {
+        if (!token) throw new Error('Token không hợp lệ');
+        return createBooking(token, data);
+      },
+      onSuccess: (newBooking) => {
+        message.success('Đặt bàn thành công!');
+        queryClient.invalidateQueries({ queryKey: ['myBookings'] });
+        queryClient.setQueryData(['booking', newBooking.bookingID], newBooking);
+      },
+      onError: (err: any) => {
+        message.error(err.message || 'Đặt bàn thất bại');
+      },
+    });
+  };
+
+  // 3. HỦY BOOKING + OPTIMISTIC
   const useCancel = () => {
     return useMutation({
       mutationFn: (bookingID: number) => {
@@ -90,7 +120,7 @@ export const useBooking = (token: string | null) => {
           return {
             ...old,
             items: old.items.map((b) =>
-              b.bookingId === bookingID ? { ...b, status: 'Cancelled' } : b
+              b.bookingID === bookingID ? { ...b, status: 'Cancelled' } : b
             ),
           };
         });
@@ -108,6 +138,7 @@ export const useBooking = (token: string | null) => {
     });
   };
 
+  // 4. LẤY BOOKING THEO ID
   const useGetBooking = (bookingID: number) => {
     return useQuery<Booking, Error>({
       queryKey: ['booking', bookingID],
@@ -116,6 +147,7 @@ export const useBooking = (token: string | null) => {
     });
   };
 
+  // 5. XÓA BOOKING
   const useDelete = () => {
     return useMutation({
       mutationFn: (bookingID: number) => {
@@ -130,6 +162,7 @@ export const useBooking = (token: string | null) => {
     });
   };
 
+  // 6. CẬP NHẬT BOOKING
   const useUpdate = () => {
     return useMutation({
       mutationFn: ({ bookingId, data }: { bookingId: number; data: BookingRequestDTO }) => {
@@ -139,7 +172,7 @@ export const useBooking = (token: string | null) => {
       onSuccess: (updated) => {
         message.success('Cập nhật thành công');
         queryClient.invalidateQueries({ queryKey: ['myBookings'] });
-        queryClient.setQueryData(['booking', updated.bookingId], updated);
+        queryClient.setQueryData(['booking', updated.bookingID], updated);
       },
       onError: (err) => message.error(err.message || 'Cập nhật thất bại'),
     });
@@ -147,6 +180,7 @@ export const useBooking = (token: string | null) => {
 
   return {
     useMyBookings,
+    useCreateBooking, // MỚI
     useGetBooking,
     useCancel,
     useDelete,

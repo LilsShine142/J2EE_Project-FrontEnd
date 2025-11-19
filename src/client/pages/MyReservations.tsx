@@ -17,7 +17,7 @@ import {
   DollarCircleOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { useBooking } from '../../hooks/useMyBookings';
+import { useBooking } from '../../hooks/useBookings';
 import Cookies from 'js-cookie';
 import { Navigate } from 'react-router-dom';
 
