@@ -1,6 +1,6 @@
 // src/service/clientService/mealService.ts
 import { axiosInstance } from "../lib/axios/axios";
-import { type PageResponse } from "./bookingService"; 
+import { type PageResponse } from "./categoryService"; 
 
 // === DTOs ===
 export interface MealRequestDTO {
@@ -24,10 +24,14 @@ export interface MealDTO {
 }
 
 export interface PaginatedMeals {
-  items: MealDTO[];
-  total: number;
-  offset: number;
-  limit: number;
+  content: MealDTO[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
 }
 
 interface ApiResponse<T> {
@@ -76,7 +80,7 @@ export const getAllMeals = async (
   if (minPrice !== undefined) params.minPrice = minPrice;
   if (maxPrice !== undefined) params.maxPrice = maxPrice;
 
-  const response = await axiosInstance.get<ApiResponse<PageResponse<MealDTO>>>(
+  const response = await axiosInstance.get<ApiResponse<PaginatedMeals>>(
     "/meals/getall",
     { params, ...configToken(token) }
   );
@@ -85,13 +89,7 @@ export const getAllMeals = async (
     throw new Error(response.data.message || "Lấy danh sách món ăn thất bại");
   }
 
-  const data = response.data.data;
-  return {
-    items: data.content,
-    total: data.total,
-    offset: data.offset,
-    limit: data.limit,
-  };
+  return response.data.data;
 };
 
 // === LẤY MEAL THEO ID ===
@@ -143,12 +141,7 @@ export const getMealsByCategoryId = async (
   }
 
   const data = response.data.data;
-  return {
-    items: data.content,
-    total: data.total,
-    offset: data.offset,
-    limit: data.limit,
-  };
+  return data;
 };
 
 // === LẤY TOP 9 MÓN PHỔ BIẾN ===

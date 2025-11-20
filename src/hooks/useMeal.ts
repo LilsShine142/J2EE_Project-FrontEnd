@@ -22,7 +22,6 @@ type UseMealOptions = {
 export const useMeal = (token: string | null) => {
   const queryClient = useQueryClient();
 
-  // 1. LẤY DANH SÁCH MEAL
   const useMeals = (
     filters: {
       page?: number;
@@ -41,7 +40,16 @@ export const useMeal = (token: string | null) => {
       queryKey: ['meals', page, size, rest],
       queryFn: () => getAllMeals(token, { offset: page * size, limit: size, ...rest }),
       enabled: (options?.enabled ?? true) && !!token,
-      placeholderData: { items: [], total: 0, offset: 0, limit: size },
+      placeholderData: { 
+        content: [], 
+        totalElements: 0, 
+        totalPages: 0,
+        size: size,
+        number: 0,
+        first: true,
+        last: true,
+        empty: true
+      },
       staleTime: 5 * 60 * 1000,
       retry: 1,
     });
@@ -152,8 +160,8 @@ export const useMeal = (token: string | null) => {
           if (!old) return old;
           return {
             ...old,
-            items: old.items.filter((m) => m.mealID !== mealID),
-            total: old.total - 1,
+            content: old.content.filter((m) => m.mealID !== mealID),
+            totalElements: old.totalElements - 1,
           };
         });
 

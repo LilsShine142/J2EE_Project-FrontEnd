@@ -1,10 +1,26 @@
 // src/types/index.ts
 export interface User {
-  id: string;
+  userId: number;
   email: string;
-  password: string;  // Hash in real app
-  name?: string;
-  role?: 'customer' | 'admin';
+  Password?: string;       
+  verifyCode?: string | null;
+  Status: string;
+  fullName: string;
+  joinDate: string;
+  phoneNumber: string;
+  totalSpent?: number;
+  loyaltyPoints?: number;
+  statusWork: string;
+  avatar?: string;
+  gender?: string;
+  statusId?: number;
+  createdAt: string;
+  updatedAt: string;
+  role?: {
+    RoleId?: number;
+    RoleName?: string;
+    Description?: string;
+  };
 }
 
 export interface Booking {
@@ -37,7 +53,19 @@ export interface BookingFormData {
   notes?: string;
 }
 
-// route type for lazy loading
+export interface RoleOption {
+  RoleID: number;
+  RoleName: string;
+  Description?: string;
+}
+
+export interface StatusOption {
+  id: number;         
+  description: string; 
+  code?: string;
+}
+
+
 export type AppRoute = {
   path: string;
   component: React.FC<any>;

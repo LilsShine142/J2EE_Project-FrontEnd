@@ -14,7 +14,7 @@ export const useAuth = () => {
     onSuccess: ({ user }) => {
       message.success(`Chào mừng ${user.fullName}!`, 2);
       setCurrentUser(user);
-      navigate(getDefaultRoute(user.RoleName as RoleName), { replace: true });
+      navigate(getDefaultRoute(user.role?.RoleName as RoleName), { replace: true });
     },
     onError: (error: any) => {
       console.error('[LOGIN ERROR]', error);

@@ -32,7 +32,7 @@ const MenuSection: React.FC<{ token: string | null }> = ({ token }) => {
     { enabled: !!activeCategoryId }
   );
 
-  const allMeals = paginatedMeals?.items ?? [];
+  const allMeals = paginatedMeals?.content ?? [];
   const displayedMeals = isExpanded ? allMeals : allMeals.slice(0, 4);
 
   // === TỰ ĐỘNG CHỌN CATEGORY ĐẦU ===

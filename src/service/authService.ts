@@ -1,6 +1,7 @@
 import Cookies from "js-cookie";
 import { axiosInstance } from "../lib/axios/axios";
 import routes from "../config/routes";
+import { type User } from "../types/index";
 
 // === ENUM: Role Names ===
 export const RoleName = {
@@ -43,24 +44,6 @@ export const getDefaultRoute = (roleName: RoleName): string => {
   };
   return routeMap[roleName] || routes.client_dashboard;
 };
-
-// === INTERFACE: User từ backend ===
-export interface User {
-  userId: number;
-  roleId: number;
-  RoleName?: RoleName; // Optional: backend có thể trả hoặc không
-  username: string;
-  email: string;
-  fullName: string;
-  phoneNumber?: string | null;
-  statusId: number;
-  statusWork: string;
-  totalSpent: number;
-  loyaltyPoints: number;
-  joinDate: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
 
 // === RESPONSE CẤU TRÚC ===
 interface ApiResponse<T> {
@@ -108,10 +91,10 @@ export const saveAuthData = (
   });
 
   // Bổ sung RoleName nếu thiếu
-  const userWithRole: User = {
+  const userWithRole = {
     ...user,
-    RoleName: user.RoleName || roleIdToName[user.roleId] || RoleName.CUSTOMER,
-  };
+    RoleName: user.role?.RoleName || (user.role?.RoleId ? roleIdToName[user.role.RoleId] : undefined) || RoleName.CUSTOMER,
+  } as User & { RoleName: RoleName };
 
   Cookies.set("user", JSON.stringify(userWithRole), {
     expires: 7,
@@ -291,7 +274,7 @@ export const checkAuthToken = (): boolean => {
 // === KIỂM TRA QUYỀN ===
 export const hasRole = (roleName: RoleName): boolean => {
   const user = getCurrentUser();
-  return user?.RoleName === roleName;
+  return user?.role?.RoleName === roleName;
 };
 
 export const getAuthToken = (): string | null => {

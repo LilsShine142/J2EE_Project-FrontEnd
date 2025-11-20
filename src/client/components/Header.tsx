@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { type User } from '../../service/authService';
+import { type User } from '../../types/index';
 import standaloneRoutes from '../../config/routes';
 
 // Lazy load BookingForm

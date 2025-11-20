@@ -3,34 +3,54 @@ import { getCurrentUser, configToken } from "./authService";
 
 // === Request & Response DTOs ===
 export interface BookingRequestDTO {
-  tableId: number;
-  bookingDate: string; // ISO: "2025-04-05T18:00:00"
+  tableID: number;
+  bookingDate: string;
+  startTime: string;
+  endTime: string;
   numberOfGuests: number;
-  specialRequests?: string;
+  notes?: string;
+  initialPayment?: number;
+  paymentMethod?: string;
+}
+
+export interface BookingDetailDTO {
+  id: number | null;
+  bookingID: number;
+  mealID: number;
+  quantity: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface BookingDTO {
   bookingID: number;
-  userId: number;
-  tableId: number;
+  userID: number;
+  userName: string | null;
+  tableID: number;
   tableName: string;
   bookingDate: string;
   startTime: string;
+  endTime: string;
+  statusId: number;
+  notes: string;
   numberOfGuests: number;
-  specialRequests?: string;
-  status: string;
+  initialPayment: number;
+  paymentMethod: string;
   createdAt: string;
   updatedAt: string;
-  userFullName: string;
-  userPhone: string;
-  initialPayment?: number;
+  paymentTime: string | null;
+  bookingDetails: BookingDetailDTO[];
 }
 
-export interface PageResponse<T> {
-  content: T[];
-  total: number;
-  offset: number;
-  limit: number;
+export interface PaginatedBookings {
+  content: BookingDTO[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
 }
 
 interface ApiResponse<T> {
@@ -39,7 +59,24 @@ interface ApiResponse<T> {
   data: T;
 }
 
-export const createBooking = async (token: string | null, data: any): Promise<BookingDTO> => {
+export interface CreateBookingDTO {
+  userID: number;
+  tableID: number;
+  bookingDate: string;
+  startTime: string;
+  endTime: string;
+  numberOfGuests: number;
+  notes?: string;
+  initialPayment?: number;
+  paymentMethod?: string;
+  meals?: Array<{ mealID: number; quantity: number }>;
+}
+
+// === TẠO BOOKING MỚI ===
+export const createBooking = async (
+  token: string | null, 
+  data: CreateBookingDTO
+): Promise<BookingDTO> => {
   const response = await axiosInstance.post<ApiResponse<BookingDTO>>(
     '/bookings/reserve',
     data,
@@ -140,8 +177,8 @@ export const getBookingsForCurrentUser = async (
   userId: number,
   page = 0,
   size = 10
-): Promise<PageResponse<BookingDTO>> => {
-  const response = await axiosInstance.get<ApiResponse<PageResponse<BookingDTO>>>(
+): Promise<PaginatedBookings> => {
+  const response = await axiosInstance.get<ApiResponse<PaginatedBookings>>(
     `/bookings/user/${userId}`,
     {
       params: { offset: page * size, limit: size },
@@ -152,8 +189,32 @@ export const getBookingsForCurrentUser = async (
   return response.data.data;
 };
 
+// === LẤY TẤT CẢ BOOKINGS (ADMIN) ===
+export const getAllBookings = async (
+  token: string | null,
+  page = 0,
+  size = 10,
+  statusId?: number,
+  search?: string
+): Promise<PaginatedBookings> => {
+  const params: any = { offset: page * size, limit: size };
+  if (statusId !== undefined) params.statusId = statusId;
+  if (search !== undefined) params.search = search;
+
+  const response = await axiosInstance.get<ApiResponse<PaginatedBookings>>(
+    '/bookings/getall',
+    {
+      params,
+      ...configToken(token),
+    }
+  );
+  
+  if (!response.data.success) throw new Error(response.data.message);
+  return response.data.data;
+};
+
 // === KIỂM TRA CHỦ SỞ HỮU ===
 export const isBookingOwner = (booking: BookingDTO): boolean => {
   const currentUser = getCurrentUser();
-  return currentUser?.userId === booking.userId;
+  return currentUser?.userId === booking.userID;
 };

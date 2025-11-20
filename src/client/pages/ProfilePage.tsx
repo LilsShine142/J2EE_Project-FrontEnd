@@ -134,17 +134,18 @@ const ProfilePage: React.FC = () => {
     gender: 'male' as 'male' | 'female' | 'other',
     birthdate: '',
   });
-  console.log('user data in ProfilePage:', user?.data);
+  console.log('user data in ProfilePage:', user);
   // === CẬP NHẬT FORM KHI USER CÓ DỮ LIỆU ===
   useEffect(() => {
-    if (user) {
+    if (user?.content?.[0]) {
+      const userData = user.content[0];
       setFormData({
-        username: user.data.username || '',
-        name: user.data.fullName || '',
-        email: user.data.email || '',
-        phone: user.data.phoneNumber || '',
+        username: userData.email || '',
+        name: userData.fullName || '',
+        email: userData.email || '',
+        phone: userData.phoneNumber || '',
         gender: 'male',
-        birthdate: user.data.joinDate ? new Date(user.data.joinDate).toLocaleDateString('vi-VN') : '',
+        birthdate: userData.joinDate ? new Date(userData.joinDate).toLocaleDateString('vi-VN') : '',
       });
     }
   }, [user]);
