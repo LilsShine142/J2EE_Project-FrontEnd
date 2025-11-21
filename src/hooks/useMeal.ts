@@ -39,7 +39,7 @@ export const useMeal = (token: string | null) => {
     return useQuery<PaginatedMeals, Error>({
       queryKey: ['meals', page, size, rest],
       queryFn: () => getAllMeals(token, { offset: page * size, limit: size, ...rest }),
-      enabled: (options?.enabled ?? true) && !!token,
+      enabled: (options?.enabled ?? true),
       placeholderData: { 
         content: [], 
         totalElements: 0, 
@@ -91,7 +91,7 @@ export const useMeal = (token: string | null) => {
     return useQuery<PaginatedMeals, Error>({
       queryKey: ['meals', categoryId, params.offset, params.limit],
       queryFn: () => getMealsByCategoryId(token, categoryId, { ...params }),
-      enabled: !!token && !!categoryId && (options?.enabled ?? true),
+      enabled: !!categoryId && (options?.enabled ?? true),
       staleTime: 5 * 60 * 1000,
       gcTime: 15 * 60 * 1000,
       placeholderData: keepPreviousData, // GIỮ DỮ LIỆU KHI ĐỔI TAB
@@ -104,7 +104,7 @@ export const useMeal = (token: string | null) => {
     return useQuery<PopularMealDTO[], Error>({
       queryKey: ['popular-meals', limit],
       queryFn: () => getPopularMeals(token, limit),
-      enabled: (options?.enabled ?? true) && !!token,
+      enabled: (options?.enabled ?? true),
       staleTime: 10 * 60 * 1000, // Cache 10 phút
       gcTime: 30 * 60 * 1000,
       placeholderData: keepPreviousData,

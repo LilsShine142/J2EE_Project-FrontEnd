@@ -82,7 +82,7 @@ export const getAllMeals = async (
 
   const response = await axiosInstance.get<ApiResponse<PaginatedMeals>>(
     "/meals/getall",
-    { params, ...configToken(token) }
+    { params, }
   );
 
   if (!response.data.success) {
@@ -133,7 +133,7 @@ export const getMealsByCategoryId = async (
 
   const response = await axiosInstance.get<ApiResponse<PageResponse<MealDTO>>>(
     `/meals/category/${categoryId}`,
-    { params, ...configToken(token) }
+    { params, }
   );
 
   if (!response.data.success) {
@@ -151,7 +151,7 @@ export const getPopularMeals = async (
 ): Promise<PopularMealDTO[]> => {
   const response = await axiosInstance.get<ApiResponse<PopularMealDTO[]>>(
     `/meals/popular?limit=${limit}`,
-    configToken(token)
+    // configToken(token)
   );
 
   if (!response.data.success) {

@@ -28,6 +28,13 @@ export interface ApiResponse {
   };
 }
 
+export interface UpdateUserResponse {
+  status: number;
+  success: boolean;
+  message: string;
+  data: User; 
+}
+
 /**
  * Lấy thông tin người dùng theo ID từ API
  */
@@ -122,11 +129,30 @@ export const createUser = async (
       configToken(token)
     );
 
-    console.log('✅ API Response:', response.data);
+    console.log('API Response:', response.data);
     return response.data;
   } catch (error: any) {
     console.error('createUser failed:', error);
     console.error('Error details:', error.response?.data);
     throw error;
   }
+};
+
+// === CẬP NHẬT USER ===
+export const updateUser = async (
+  token: string,
+  userId: number,
+  userData: Partial<User>  // Partial<User> để match UserDTO
+): Promise<UpdateUserResponse> => {
+  const response = await axiosInstance.put<UpdateUserResponse>(
+    `/users/${userId}`,
+    userData,
+    configToken(token)
+  );
+
+  if (!response.data.success) {
+    throw new Error(response.data.message || "Cập nhật thất bại");
+  }
+
+  return response.data;
 };

@@ -8,6 +8,7 @@ export interface User {
   fullName: string;
   joinDate: string;
   phoneNumber: string;
+  username?: string;
   totalSpent?: number;
   loyaltyPoints?: number;
   statusWork: string;

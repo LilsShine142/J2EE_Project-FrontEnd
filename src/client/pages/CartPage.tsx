@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import CartContent from '../components/Orther/CartContent';
@@ -28,49 +28,35 @@ interface SelectedMeal {
 const CartPage: React.FC = () => {
   const navigate = useNavigate();
   const token = getAuthToken();
-  const { useCancel } = useBooking(token);
+  const { useMyBookings, useCancel } = useBooking(token);
+  const { data: bookingsData } = useMyBookings(0, 10, { enabled: !!token });
   const cancelMutation = useCancel();
 
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showMealSelection, setShowMealSelection] = useState(false);
-  const [currentBooking, setCurrentBooking] = useState<any>(null);
   const [tempMeals, setTempMeals] = useState<SelectedMeal[]>([]);
   const [allMeals, setAllMeals] = useState<Meal[]>([]);
 
-  // === 1. KIỂM TRA BOOKING ===
-  useEffect(() => {
-    const saved = localStorage.getItem('currentBooking');
-    console.log('Saved booking from localStorage:', saved);
-    if (saved) {
-      const booking = JSON.parse(saved);
-      setCurrentBooking(booking);
+  const currentBooking = useMemo(() => {
+    if (!bookingsData?.content) return null;
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); 
+    return bookingsData.content.find(booking => 
+      (booking.statusId === 3 || booking.statusId === 4) && 
+      new Date(booking.startTime) > today &&
+      new Date(booking.endTime) > today
+    ) || null;
+  }, [bookingsData]);
 
-      if (booking.statusName === 'COMPLETED') {
-        localStorage.removeItem('currentBooking');
-        sessionStorage.removeItem('cart');
-        setCurrentBooking(null);
-        message.info('Bàn đã được thanh toán. Bạn có thể đặt bàn mới!');
-        setShowBookingModal(true);
-      }
-    } else {
-      setShowBookingModal(true);
-      message.info('Vui lòng đặt bàn trước!');
-    }
-  }, []);
+  console.log('Current Booking:', currentBooking);
 
   // === 2. ĐẶT BÀN THÀNH CÔNG ===
   const handleBookingSuccess = (hasMeals: boolean = false) => {
-    const saved = localStorage.getItem('currentBooking');
-    if (saved) {
-      const booking = JSON.parse(saved);
-      setCurrentBooking(booking);
-      
-      if (hasMeals) {
-        window.dispatchEvent(new Event('cartUpdated'));
-        setShowMealSelection(true);
-      } else {
-        message.success('Đặt bàn thành công! Bạn có thể gọi món tại quán hoặc chọn trước.');
-      }
+    if (hasMeals) {
+      window.dispatchEvent(new Event('cartUpdated'));
+      setShowMealSelection(true);
+    } else {
+      message.success('Đặt bàn thành công! Bạn có thể gọi món tại quán hoặc chọn trước.');
     }
     setShowBookingModal(false);
   };
@@ -160,10 +146,8 @@ const CartPage: React.FC = () => {
         try {
           await cancelMutation.mutateAsync(currentBooking.bookingID);
           
-          // Xóa booking và giỏ hàng
-          localStorage.removeItem('currentBooking');
+          // Xóa giỏ hàng
           sessionStorage.removeItem('cart');
-          setCurrentBooking(null);
           
           // Trigger cập nhật giỏ hàng
           window.dispatchEvent(new Event('cartUpdated'));

@@ -139,7 +139,7 @@
 
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { getCurrentUser, logout } from '../service/authService';
-import { getAllUsers, getUserById, createUser, type ApiResponse, type PageResponse } from '../service/userService';
+import { getAllUsers, getUserById, createUser, updateUser, type ApiResponse, type PageResponse, type UpdateUserResponse } from '../service/userService';
 import { type User } from '../types/index';
 import { RoleID } from '../lib/constants/constants';
 import { message } from 'antd';
@@ -175,7 +175,6 @@ export const useCurrentUser = () => {
     queryKey: CURRENT_USER_KEY,
     queryFn: () => {
       const user = Cookies.get('user') ? JSON.parse(Cookies.get('user')!) : null;
-      console.log('Current user fetched:', user);
       if (!user) {
         message.warning('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         logout();
@@ -341,5 +340,37 @@ export const useCustomersForOrder = (token: string | null) => {
     gcTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
     retry: 1,
+  });
+};
+
+/**
+ * Hook cập nhật user
+ */
+export const useUpdateUser = (token: string | null) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<UpdateUserResponse, Error, { userId: number; userData: Partial<User> }>({
+    mutationFn: ({ userId, userData }) => {
+      console.log("Updating user with data:", userData);
+      if (!token) throw new Error('Token không hợp lệ');
+
+      return updateUser(token, userId, userData);
+    },
+    onSuccess: (response, { userId }) => {
+      message.success(response.message || 'Cập nhật thông tin thành công!');
+      
+      // Cập nhật cache cho user cụ thể
+      queryClient.setQueryData(USER_BY_ID_KEY(userId), { content: [response.data] });  // Vì getUserById trả về PageResponse với content
+      
+      // Cập nhật current user nếu là user hiện tại
+      const currentUser = queryClient.getQueryData(CURRENT_USER_KEY);
+      if (currentUser && (currentUser as User).userId === userId) {
+        queryClient.setQueryData(CURRENT_USER_KEY, response.data);
+      }
+    },
+    onError: (error: any) => {
+      const errorMessage = error.response?.data?.message || 'Cập nhật thất bại!';
+      message.error(errorMessage);
+    },
   });
 };

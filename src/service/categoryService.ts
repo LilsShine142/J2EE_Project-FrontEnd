@@ -40,7 +40,6 @@ const configToken = (token: string | null) => {
 };
 
 export const getAllCategories = async (
-  token: string | null,
   page = 0,
   size = 100
 ): Promise<PageResponse<CategoryDTO>> => {
@@ -48,7 +47,6 @@ export const getAllCategories = async (
     "/categories/getall",
     {
       params: { offset: page * size, limit: size },
-      ...configToken(token),
     }
   );
 
@@ -56,5 +54,5 @@ export const getAllCategories = async (
     throw new Error(response.data.message || "Lấy danh sách danh mục thất bại");
   }
 
-  return response.data.data; // Trả về TOÀN BỘ PageResponse
+  return response.data.data; 
 };

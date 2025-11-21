@@ -16,7 +16,7 @@ export const useTableTypes = (token: string | null) => {
   return useQuery<TableTypeDTO[], Error>({
     queryKey: ['tableTypes'],
     queryFn: () => getAllTableTypes(token), 
-    enabled: !!token, 
+    // enabled: !!token, 
     staleTime: 10 * 60 * 1000,
     retry: 2,
     placeholderData: [], 
