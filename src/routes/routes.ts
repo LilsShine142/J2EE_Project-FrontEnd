@@ -28,6 +28,9 @@ import AddNewBill from "../admin/pages/Manager/BillManagement/addNewBill";
 import RoleList from "../admin/pages/Admin/Role_Permission/Role/RoleList";
 import PermissionList from "../admin/pages/Admin/Role_Permission/Permission/PermissionList";
 import RolePermissionList from "../admin/pages/Admin/Role_Permission/RolePermission/RolePermissionList";
+import ViewEmail from "../admin/pages/Admin/EmailManagement/ViewEmail";
+import EmailList from "../admin/pages/Admin/EmailManagement/EmailList";
+import SendEmail from "../admin/pages/Admin/EmailManagement/SendEmail";
 
 // Layout Routes (dùng ClientLayout cho dashboard)
 export const layoutRoutes: AppRoute[] = [
@@ -63,6 +66,9 @@ export const adminRoutes: AppRoute[] = [
   { path: config.routes.role_list, component: RoleList }, 
   { path: config.routes.permission_list, component: PermissionList },
   { path: config.routes.role_permission, component: RolePermissionList }, 
+  { path: config.routes.email_list, component: EmailList },
+  { path: config.routes.view_email, component: ViewEmail },
+  { path: config.routes.email_send, component: SendEmail },
 ];
 
 // Client Profile Nested Routes (dùng Outlet)
