@@ -40,13 +40,12 @@ const MealSelection: React.FC<MealSelectionProps> = ({
   // === GỌI API LẤY MÓN ĂN ===
   const { data: mealData, isLoading, error } = useMeals(
     { page: 0, size: 50 },
-    { enabled: !!token }
   );
 
   // === TRUYỀN DỮ LIỆU MÓN VỀ CARTPAGE ===
   useEffect(() => {
-    if (mealData?.items) {
-      onMealsData?.(mealData.items as Meal[]);
+    if (mealData?.content) {
+      onMealsData?.(mealData.content as Meal[]);
     }
   }, [mealData, onMealsData]);
 
@@ -79,7 +78,7 @@ const MealSelection: React.FC<MealSelectionProps> = ({
     return <Empty description="Không thể tải menu" className="py-8" />;
   }
 
-  const meals: Meal[] = mealData?.items || [];
+  const meals: Meal[] = mealData?.content || [];
 
   if (meals.length === 0) {
     return <Empty description="Chưa có món ăn nào" className="py-8" />;

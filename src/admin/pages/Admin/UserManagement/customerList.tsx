@@ -6,7 +6,7 @@ import AddNewCustomer from "./addNewUser";
 import UpdateCustomer from "./updateUser";
 import { Button, notification, Space } from 'antd';
 import Pagination from "../Components/Pagination";
-import MStatusUser from "../../../../lib/constants/constants";
+import { MStatusUser } from "../../../../lib/constants/constants";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import DetailModal from "../Components/ModalForm/DetailModal";
 
@@ -199,7 +199,7 @@ const CustomerList: React.FC = () => {
     const fetStatusOptions = Object.keys(MStatusUser).map((key) => {
       const statusKey = key as keyof typeof MStatusUser;
       return {
-        id: MStatusUser[statusKey].code,
+        id: String(MStatusUser[statusKey].code),
         description: MStatusUser[statusKey].description,
       };
     });

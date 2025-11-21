@@ -35,6 +35,19 @@ const routes = {
   table_type_list: "/admin/table-types",
   table_type_add: "/admin/table-types/add",
   table_list: "/admin/tables",
+  // Meal Management
+  meal_list: "/admin/meals",
+  // Booking Management
+  booking_list: "/admin/bookings",
+  // Order Management
+  order_list: "/admin/orders",
+  // Bill Management
+  bill_list: "/admin/bills",
+  add_new_bill: "/admin/bills/add",
+  // Role & Permission Management
+  role_list: "/admin/roles",
+  permission_list: "/admin/permissions",
+  role_permission: "/admin/role-permissions",
   // revenue statistics
   revenue_statistics: "/admin/statistics",
 };

@@ -22,7 +22,6 @@ type UseMealOptions = {
 export const useMeal = (token: string | null) => {
   const queryClient = useQueryClient();
 
-  // 1. LẤY DANH SÁCH MEAL
   const useMeals = (
     filters: {
       page?: number;
@@ -40,41 +39,22 @@ export const useMeal = (token: string | null) => {
     return useQuery<PaginatedMeals, Error>({
       queryKey: ['meals', page, size, rest],
       queryFn: () => getAllMeals(token, { offset: page * size, limit: size, ...rest }),
-      enabled: (options?.enabled ?? true) && !!token,
-      placeholderData: { items: [], total: 0, offset: 0, limit: size },
+      enabled: (options?.enabled ?? true),
+      placeholderData: { 
+        content: [], 
+        totalElements: 0, 
+        totalPages: 0,
+        size: size,
+        number: 0,
+        first: true,
+        last: true,
+        empty: true
+      },
       staleTime: 5 * 60 * 1000,
       retry: 1,
     });
   };
 
-  // 2. LẤY MEAL THEO CATEGORY
-  // const useMealsByCategory = (
-  //   categoryId: number,
-  //   filters: {
-  //     page?: number;
-  //     size?: number;
-  //     search?: string;
-  //     statusId?: number;
-  //     minPrice?: number;
-  //     maxPrice?: number;
-  //   } = {},
-  //   options?: UseMealOptions
-  // ) => {
-  //   const { page = 0, size = 10, ...rest } = filters;
-
-  //   return useQuery<PaginatedMeals, Error>({
-  //     queryKey: ['meals', 'category', categoryId, page, size, rest],
-  //     queryFn: () =>
-  //       getMealsByCategoryId(token, categoryId, {
-  //         offset: page * size,
-  //         limit: size,
-  //         ...rest,
-  //       }),
-  //     enabled: (options?.enabled ?? true) && !!token && !!categoryId,
-  //     placeholderData: { items: [], total: 0, offset: 0, limit: size },
-  //     staleTime: 5 * 60 * 1000,
-  //   });
-  // };
   const useMealsByCategory = (
     categoryId: number,
     params: { offset: number; limit: number },
@@ -83,7 +63,7 @@ export const useMeal = (token: string | null) => {
     return useQuery<PaginatedMeals, Error>({
       queryKey: ['meals', categoryId, params.offset, params.limit],
       queryFn: () => getMealsByCategoryId(token, categoryId, { ...params }),
-      enabled: !!token && !!categoryId && (options?.enabled ?? true),
+      enabled: !!categoryId && (options?.enabled ?? true),
       staleTime: 5 * 60 * 1000,
       gcTime: 15 * 60 * 1000,
       placeholderData: keepPreviousData, // GIỮ DỮ LIỆU KHI ĐỔI TAB
@@ -96,7 +76,7 @@ export const useMeal = (token: string | null) => {
     return useQuery<PopularMealDTO[], Error>({
       queryKey: ['popular-meals', limit],
       queryFn: () => getPopularMeals(token, limit),
-      enabled: (options?.enabled ?? true) && !!token,
+      enabled: (options?.enabled ?? true),
       staleTime: 10 * 60 * 1000, // Cache 10 phút
       gcTime: 30 * 60 * 1000,
       placeholderData: keepPreviousData,
@@ -152,8 +132,8 @@ export const useMeal = (token: string | null) => {
           if (!old) return old;
           return {
             ...old,
-            items: old.items.filter((m) => m.mealID !== mealID),
-            total: old.total - 1,
+            content: old.content.filter((m) => m.mealID !== mealID),
+            totalElements: old.totalElements - 1,
           };
         });
 

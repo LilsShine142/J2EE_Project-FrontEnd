@@ -77,7 +77,7 @@ export const getAllTableTypes = async (
       '/tabletypes/getall',
       {
         params: { offset: 0, limit: 50 },
-        ...configToken(token),
+        // ...configToken(token),
       }
     );
 

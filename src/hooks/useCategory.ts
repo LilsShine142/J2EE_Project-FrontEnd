@@ -5,8 +5,8 @@ export const useCategory = (token: string | null) => {
   const useCategories = (page = 0, size = 100) => {
     return useQuery<PageResponse<CategoryDTO>, Error>({
       queryKey: ['categories', page, size],
-      queryFn: () => getAllCategories(token, page, size),
-      enabled: !!token,
+      queryFn: () => getAllCategories(page, size),
+      // enabled: !!token,
       staleTime: 10 * 60 * 1000,
       placeholderData: {
         content: [],

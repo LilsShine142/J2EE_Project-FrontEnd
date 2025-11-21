@@ -1,0 +1,347 @@
+.add-customer-modal .ant-modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.add-customer-modal .ant-modal-header {
+    background: linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%);
+    border-bottom: none;
+    padding: 20px 24px;
+    margin-bottom: 0;
+}
+
+.add-customer-modal .ant-modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #047857;
+}
+
+.add-customer-modal .ant-modal-body {
+    padding: 24px;
+    background: #ffffff;
+}
+
+.add-customer-modal .ant-modal-close {
+    top: 16px;
+    right: 16px;
+}
+
+.add-customer-modal .ant-modal-close-x {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    color: #059669;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.add-customer-modal .ant-modal-close-x:hover {
+    color: #047857;
+    background-color: rgba(16, 185, 129, 0.1);
+    border-radius: 8px;
+}
+
+/* Form Items */
+.add-customer-modal .ant-form-item {
+    margin-bottom: 16px;
+}
+
+.add-customer-modal .ant-form-item-label>label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+    height: 28px;
+}
+
+.add-customer-modal .ant-form-item-label>label.ant-form-item-required::before {
+    color: #ef4444;
+    font-size: 14px;
+    margin-right: 4px;
+}
+
+.add-customer-modal .ant-form-item-label>label::after {
+    content: '';
+    margin: 0;
+}
+
+/* Input Styles */
+.add-customer-modal .ant-input,
+.add-customer-modal .ant-input-textarea {
+    border-radius: 8px;
+    border: 1.5px solid #e5e7eb;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    padding: 10px 12px;
+}
+
+.add-customer-modal .ant-input:hover,
+.add-customer-modal .ant-input-textarea:hover {
+    border-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.08);
+}
+
+.add-customer-modal .ant-input:focus,
+.add-customer-modal .ant-input-textarea:focus,
+.add-customer-modal .ant-input-focused,
+.add-customer-modal .ant-input-textarea-focused {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.add-customer-modal .ant-input-affix-wrapper {
+    border-radius: 8px;
+    border: 1.5px solid #e5e7eb;
+    transition: all 0.3s ease;
+    padding: 8px 12px;
+}
+
+.add-customer-modal .ant-input-affix-wrapper:hover {
+    border-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.08);
+}
+
+.add-customer-modal .ant-input-affix-wrapper-focused {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.add-customer-modal .ant-input-prefix {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+/* Textarea */
+.add-customer-modal .ant-input-textarea-show-count::after {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.add-customer-modal textarea.ant-input {
+    resize: none;
+    line-height: 1.6;
+}
+
+/* Info Box */
+.add-customer-modal .bg-blue-50 {
+    background-color: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.add-customer-modal .bg-blue-50 p {
+    margin: 0;
+}
+
+.add-customer-modal .bg-blue-50 ul {
+    margin: 8px 0 0 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+.add-customer-modal .bg-blue-50 li {
+    position: relative;
+    padding-left: 20px;
+    line-height: 1.6;
+}
+
+.add-customer-modal .bg-blue-50 code {
+    background-color: #dbeafe;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+}
+
+/* Buttons */
+.add-customer-modal .cancel-btn {
+    border-radius: 8px;
+    font-weight: 600;
+    height: 44px;
+    border: 2px solid #e5e7eb;
+    color: #6b7280;
+    transition: all 0.3s ease;
+}
+
+.add-customer-modal .cancel-btn:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    background-color: #fef2f2;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+}
+
+.add-customer-modal .cancel-btn:active {
+    transform: translateY(0);
+}
+
+.add-customer-modal .submit-btn,
+.add-customer-modal .ant-btn-primary {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    font-weight: 600;
+    border-radius: 8px;
+    height: 44px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.add-customer-modal .submit-btn:hover,
+.add-customer-modal .ant-btn-primary:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+}
+
+.add-customer-modal .submit-btn:active,
+.add-customer-modal .ant-btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.add-customer-modal .ant-btn-primary[disabled] {
+    background: #d1d5db;
+    box-shadow: none;
+}
+
+.add-customer-modal .ant-btn-loading-icon {
+    margin-right: 8px;
+}
+
+/* Button Group */
+.add-customer-modal .ant-space {
+    width: 100%;
+}
+
+.add-customer-modal .ant-space-item {
+    flex: 1;
+}
+
+/* Error Messages */
+.add-customer-modal .ant-form-item-explain-error {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 4px;
+    animation: errorShake 0.3s ease-out;
+}
+
+@keyframes errorShake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-4px);
+    }
+
+    75% {
+        transform: translateX(4px);
+    }
+}
+
+.add-customer-modal .ant-form-item-has-error .ant-input,
+.add-customer-modal .ant-form-item-has-error .ant-input-affix-wrapper,
+.add-customer-modal .ant-form-item-has-error .ant-input-textarea {
+    border-color: #ef4444;
+}
+
+.add-customer-modal .ant-form-item-has-error .ant-input:focus,
+.add-customer-modal .ant-form-item-has-error .ant-input-affix-wrapper-focused,
+.add-customer-modal .ant-form-item-has-error .ant-input-textarea:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* Loading State */
+.add-customer-modal .ant-spin-container {
+    position: relative;
+}
+
+.add-customer-modal .ant-btn-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .add-customer-modal .ant-modal {
+        max-width: calc(100vw - 32px);
+        margin: 16px auto;
+    }
+
+    .add-customer-modal .ant-modal-header,
+    .add-customer-modal .ant-modal-body {
+        padding: 16px;
+    }
+
+    .add-customer-modal .ant-form-item {
+        margin-bottom: 12px;
+    }
+
+    .add-customer-modal .cancel-btn,
+    .add-customer-modal .submit-btn {
+        height: 40px;
+        font-size: 14px;
+    }
+}
+
+/* Animation for modal */
+.add-customer-modal.ant-modal {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Focus visible for accessibility */
+.add-customer-modal .ant-btn:focus-visible {
+    outline: 2px solid #10b981;
+    outline-offset: 2px;
+}
+
+.add-customer-modal .ant-input:focus-visible,
+.add-customer-modal .ant-input-textarea:focus-visible {
+    outline: none;
+}
+
+/* Custom scrollbar for textarea */
+.add-customer-modal .ant-input-textarea::-webkit-scrollbar {
+    width: 6px;
+}
+
+.add-customer-modal .ant-input-textarea::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 4px;
+}
+
+.add-customer-modal .ant-input-textarea::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+.add-customer-modal .ant-input-textarea::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}

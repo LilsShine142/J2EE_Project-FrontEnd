@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { type User } from '../../service/authService';
+import { type User } from '../../types/index';
 import standaloneRoutes from '../../config/routes';
+import { useAuth } from '../../hooks/useAuth';
 
 // Lazy load BookingForm
 const BookingForm = lazy(() => import('./BookingForm/BookingForm'));
@@ -42,6 +43,7 @@ const SCROLL_DETECT_THRESHOLD = 2;
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
 
   const [activeMenu, setActiveMenu] = useState<string>('home');
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -214,11 +216,10 @@ const Header: React.FC = () => {
   };
 
   const handleLogout = () => {
-    Cookies.remove('token');
-    Cookies.remove('user');
+    logout();
     setUser(null);
     setOpenDropdown(null);
-    navigate(standaloneRoutes.client_dashboard);
+    // navigate(standaloneRoutes.client_dashboard);
   };
 
   return (

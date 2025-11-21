@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Spin, message } from 'antd';
-import { useCurrentUser, useUserById } from '../../hooks/useUserHooks';
+import Cookies from 'js-cookie';
+import { useCurrentUser, useUpdateUser, useUserById } from '../../hooks/useUserHooks';
 
 // === Component: Form Section ===
 const ProfileForm: React.FC<{
@@ -21,8 +22,8 @@ const ProfileForm: React.FC<{
         <label className="w-32 text-sm text-gray-600 font-medium">Tên</label>
         <input
           type="text"
-          name="name"
-          value={formData.name}
+          name="fullName"
+          value={formData.fullName}
           onChange={onChange}
           className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
           placeholder="Nhập tên"
@@ -42,7 +43,7 @@ const ProfileForm: React.FC<{
       <div className="flex items-center">
         <label className="w-32 text-sm text-gray-600 font-medium">Số điện thoại</label>
         <div className="flex-1 flex items-center gap-3">
-          <span className="text-gray-900">{formData.phone || 'Chưa có'}</span>
+          <span className="text-gray-900">{formData.phoneNumber || 'Chưa có'}</span>
           <button className="text-sm text-blue-600 hover:underline font-medium">Thay đổi</button>
         </div>
       </div>
@@ -118,36 +119,36 @@ const AvatarSection: React.FC<{ avatarUrl?: string }> = React.memo(({ avatarUrl 
 
 // === Main Component ===
 const ProfilePage: React.FC = () => {
-  // const { data: user, isLoading, isError } = useCurrentUser();
-  const { data: currentUser } = useCurrentUser();
+  const { data: currentUser, isLoading, isError } = useCurrentUser();
   console.log('Current user in ProfilePage:', currentUser);
   const userId = currentUser?.userId;
   console.log('Fetching profile for user ID:', userId);
-  const { data: user, isLoading, isError } = useUserById(userId);
-
+  // const { data: user, isLoading, isError } = useUserById(userId);
+  const updateUserMutation = useUpdateUser(Cookies.get('authToken') || null);
+  console.log('UpdateUserMutation:', updateUserMutation);
+  // console.log("user :", user);
   // === Form state ===
   const [formData, setFormData] = useState({
-    username: '',
-    name: '',
-    email: '',
-    phone: '',
+    username: currentUser?.username || '',
+    fullName: currentUser?.fullName || '',
+    email: currentUser?.email || '',
+    phoneNumber: currentUser?.phoneNumber || '',
     gender: 'male' as 'male' | 'female' | 'other',
     birthdate: '',
   });
-  console.log('user data in ProfilePage:', user?.data);
   // === CẬP NHẬT FORM KHI USER CÓ DỮ LIỆU ===
   useEffect(() => {
-    if (user) {
+    if (currentUser) {
       setFormData({
-        username: user.data.username || '',
-        name: user.data.fullName || '',
-        email: user.data.email || '',
-        phone: user.data.phoneNumber || '',
+        username: currentUser?.email || '',
+        fullName: currentUser?.fullName || '',
+        email: currentUser?.email || '',
+        phoneNumber: currentUser?.phoneNumber || '',
         gender: 'male',
-        birthdate: user.data.joinDate ? new Date(user.data.joinDate).toLocaleDateString('vi-VN') : '',
+        birthdate: currentUser?.joinDate ? new Date(currentUser.joinDate).toLocaleDateString('vi-VN') : '',
       });
     }
-  }, [user]);
+  }, [currentUser]);
 
   // === Handlers ===
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,17 +156,24 @@ const ProfilePage: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  const handleSubmit = useCallback(() => {
-    console.log('Cập nhật profile:', formData);
-    message.success('Cập nhật thông tin thành công!');
-    // TODO: Gọi API cập nhật ở đây
-  }, [formData]);
-
+const handleSubmit = useCallback(() => {
+    if (!userId) return;
+    
+    updateUserMutation.mutate({
+      userId,
+      userData: {
+        fullName: formData.fullName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+      },
+    });
+  }, [formData, userId, updateUserMutation]);
+console.log('Rendering ProfilePage with formData:', formData);
   const formFields = useMemo(() => ({
     username: formData.username,
-    name: formData.name,
+    fullName: formData.fullName,
     email: formData.email,
-    phone: formData.phone,
+    phoneNumber: formData.phoneNumber,
     gender: formData.gender,
     birthdate: formData.birthdate,
   }), [formData]);
@@ -178,7 +186,7 @@ const ProfilePage: React.FC = () => {
     );
   }
 
-  if (isError || !user) {
+  if (isError || !currentUser) {
     return (
       <div className="text-center text-red-500 p-8">
         Không thể tải thông tin. Vui lòng đăng nhập lại.

@@ -1,0 +1,47 @@
+.bill-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.order-info-alert {
+    background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+    border: 1px solid #60a5fa;
+    border-radius: 8px;
+}
+
+.submit-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: none;
+    height: 44px;
+    font-weight: 600;
+}
+
+.submit-btn:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.cancel-btn {
+    height: 44px;
+    font-weight: 600;
+}
+
+/* Bill list */
+.bill-list-container {
+    padding: 24px;
+}
+
+.bill-list-container .ant-table-cell {
+    padding: 12px 16px;
+}
+
+.bill-list-container .ant-btn-text {
+    transition: all 0.3s ease;
+}
+
+.bill-list-container .ant-btn-text:hover {
+    background-color: #f0f9ff;
+    color: #3b82f6;
+}

@@ -1,0 +1,261 @@
+/* Container Animation */
+.order-form-container {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.order-form-container.form-ready {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Card Styles */
+.menu-card,
+.order-detail-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.menu-card:hover,
+.order-detail-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Meal Card Animation */
+.meal-card {
+    position: relative;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    overflow: visible;
+}
+
+.meal-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(24, 144, 255, 0.2);
+    border-color: #1890ff;
+}
+
+.meal-card.meal-selected {
+    border-color: #52c41a;
+    background: linear-gradient(135deg, #f6ffed 0%, #ffffff 100%);
+}
+
+.meal-avatar {
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.meal-card:hover .meal-avatar {
+    transform: scale(1.05);
+}
+
+.add-icon {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+}
+
+.meal-card:hover .add-icon {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Meals List Animation */
+.meals-list {
+    padding-right: 4px;
+}
+
+.meals-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.meals-list::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 3px;
+}
+
+.meals-list::-webkit-scrollbar-thumb {
+    background: #bfbfbf;
+    border-radius: 3px;
+}
+
+.meals-list::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Meal Item Card Animation */
+.meal-item-card {
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+    animation: slideInUp 0.4s ease forwards;
+    opacity: 0;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.meal-item-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: #1890ff;
+}
+
+/* Quantity Buttons */
+.quantity-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.quantity-btn:hover {
+    transform: scale(1.1);
+    border-color: #1890ff;
+    color: #1890ff;
+}
+
+/* Order Summary */
+.order-summary {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: auto;
+}
+
+.summary-detail {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+/* Custom Select */
+.custom-select .ant-select-selector {
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+}
+
+.custom-select:hover .ant-select-selector {
+    border-color: #1890ff !important;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1) !important;
+}
+
+/* Buttons */
+.cancel-btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+    border-color: #ff4d4f;
+    color: #ff4d4f;
+    transform: translateY(-2px);
+}
+
+.submit-btn {
+    border-radius: 8px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+    border: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.submit-btn:hover {
+    background: linear-gradient(135deg, #096dd9 0%, #0050b3 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(24, 144, 255, 0.4);
+}
+
+.submit-btn:disabled {
+    background: #d9d9d9;
+    transform: none;
+}
+
+/* Loading Animation */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.ant-spin-spinning {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Badge Animation */
+.ant-badge {
+    animation: bounceIn 0.5s ease;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .meal-card {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .order-form-container .ant-col {
+        width: 100%;
+    }
+
+    .menu-card,
+    .order-detail-card {
+        margin-bottom: 16px;
+    }
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Input focus effects */
+.ant-input:focus,
+.ant-input-number:focus,
+.ant-select-focused .ant-select-selector {
+    box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1) !important;
+}

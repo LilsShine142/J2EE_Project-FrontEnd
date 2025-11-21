@@ -1,117 +1,3 @@
-// import config from "../config";
-// import type { AppRoute } from '../types/index';
-// import NotFoundPage from "../admin/pages/NotFoundPage";
-// import ClientDashboard from "../client/pages/ClientDashboard";
-// import AdminDashboard from "../admin/pages/AdminDashboard";
-// import DefaultPage from "../admin/pages/DefaultPage";
-// import UserList from "../admin/pages/Admin/UserManagement/userList";
-// import CustomerList from "../admin/pages/Admin/UserManagement/customerList";
-// import TableTypeList from "../admin/pages/Admin/TableManagement/TableType/tableTypeList";
-// import TableList from "../admin/pages/Admin/TableManagement/tableList";
-// import RevenueDashboard from "../admin/pages/Admin/RevenueStatistics/revenueStatisticsList";
-// import AuthPage from "../client/pages/AuthPage";
-// import DishDetailsPage from "../client/pages/DishDetailsPage";
-// import CartPage from "../client/pages/CartPage";
-// import OAuthCallback from "../client/components/OAuthCallback";
-// import ProfilePage from "../client/pages/ProfilePage";
-// import MyReservations from "../client/pages/MyReservations";
-// import ClientLayout from "../client/components/Orther/ClientLayout";
-// // Các route sử dụng layout HomeLayout
-// const layoutRoutes: AppRoute[] = [
-//   {
-//     path: config.routes.client_dashboard,
-//     component: ClientDashboard,
-//   },
-//   {
-//     path: config.routes.client_layout,
-//     component: ClientLayout,
-//   }
-// ];
-
-// // Các route không sử dụng layout
-// const standaloneRoutes: AppRoute[] = [
-//   {
-//     path: config.routes.callback_login,
-//     component: OAuthCallback
-//   },
-//   {
-//     path: config.routes.not_found,
-//     component: NotFoundPage,
-//   },
-//   {
-//     path: config.routes.authPage,
-//     component: AuthPage
-//   },
-//   {
-//     path: config.routes.dish_detail,  // /client/dish/:slug
-//     component: DishDetailsPage
-//   },
-//   {
-//     path: config.routes.cart,  // /client/cart
-//     component: CartPage
-//   },
-//   {
-//     path: config.routes.profile,
-//     component: ProfilePage
-//   },
-//   {
-//     path: config.routes.myreservations,
-//     component: MyReservations
-//   }
-//   // { path: config.routes.register, component: Register },
-//   // { path: config.routes.account, component: Account },
-//   // { path: config.routes.account_profile, component: Profile },
-//   // { path: config.routes.default_page, component: DefaultPage },
-// ];
-
-// // Admin routes
-// const adminRoutes: AppRoute[] = [
-//   {
-//     path: config.routes.admin_dashboard,
-//     component: AdminDashboard,
-//   },
-//   {
-//     path: config.routes.test_default,
-//     component: DefaultPage,
-//   },
-//   {
-//     path: config.routes.user_list,
-//     component: UserList,
-//   },
-//   {
-//     path: config.routes.customer_list,
-//     component: CustomerList,
-//   },
-
-//   {
-//     path: config.routes.table_type_list,
-//     component: TableTypeList,
-//   },
-//   {
-//     path: config.routes.table_list,
-//     component: TableList,
-//   },
-//   {
-//     path: config.routes.revenue_statistics,
-//     component: RevenueDashboard,
-//   },
-// ];
-
-// export { layoutRoutes, standaloneRoutes, adminRoutes };
-
-
-
-
-
-
-
-
-
-
-
-
-
-// src/routes/routes.ts
 import config from "../config";
 import type { AppRoute } from '../types/index';
 
@@ -119,14 +5,6 @@ import type { AppRoute } from '../types/index';
 import ClientDashboard from "../client/pages/ClientDashboard";
 import ClientLayout from "../client/components/Orther/ClientLayout";
 import ProfilePage from "../client/pages/ProfilePage";
-// import Reservations from "../client/pages/ClientProfile/Reservations";
-// import Orders from "../client/pages/ClientProfile/Orders";
-// import Notifications from "../client/pages/ClientProfile/Notifications";
-// import Favorites from "../client/pages/ClientProfile/Favorites";
-// import Vouchers from "../client/pages/ClientProfile/Vouchers";
-// import Addresses from "../client/pages/ClientProfile/Addresses";
-// import Password from "../client/pages/ClientProfile/Password";
-// import Settings from "../client/pages/ClientProfile/Settings";
 
 import AuthPage from "../client/pages/AuthPage";
 import DishDetailsPage from "../client/pages/DishDetailsPage";
@@ -142,6 +20,14 @@ import TableList from "../admin/pages/Admin/TableManagement/tableList";
 import RevenueDashboard from "../admin/pages/Admin/RevenueStatistics/revenueStatisticsList";
 import NotFoundPage from "../admin/pages/NotFoundPage";
 import MyReservations from "../client/pages/MyReservations";
+import MealList from "../admin/pages/Manager/MealManagement/mealList";
+import BookingList from "../admin/pages/Admin/BookingManagement/BookingList";
+import OrderList from "../admin/pages/Manager/OrderManagement/orderList";
+import BillList from "../admin/pages/Manager/BillManagement/billList";
+import AddNewBill from "../admin/pages/Manager/BillManagement/addNewBill";
+import RoleList from "../admin/pages/Admin/Role_Permission/Role/RoleList";
+import PermissionList from "../admin/pages/Admin/Role_Permission/Permission/PermissionList";
+import RolePermissionList from "../admin/pages/Admin/Role_Permission/RolePermission/RolePermissionList";
 
 // Layout Routes (dùng ClientLayout cho dashboard)
 export const layoutRoutes: AppRoute[] = [
@@ -169,6 +55,14 @@ export const adminRoutes: AppRoute[] = [
   { path: config.routes.table_type_list, component: TableTypeList },
   { path: config.routes.table_list, component: TableList },
   { path: config.routes.revenue_statistics, component: RevenueDashboard },
+  { path: config.routes.meal_list, component: MealList },
+  { path: config.routes.booking_list, component: BookingList }, 
+  { path: config.routes.order_list, component: OrderList },
+  { path: config.routes.bill_list, component: BillList },
+  { path: config.routes.add_new_bill, component: AddNewBill },
+  { path: config.routes.role_list, component: RoleList }, 
+  { path: config.routes.permission_list, component: PermissionList },
+  { path: config.routes.role_permission, component: RolePermissionList }, 
 ];
 
 // Client Profile Nested Routes (dùng Outlet)
