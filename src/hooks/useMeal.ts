@@ -55,34 +55,6 @@ export const useMeal = (token: string | null) => {
     });
   };
 
-  // 2. LẤY MEAL THEO CATEGORY
-  // const useMealsByCategory = (
-  //   categoryId: number,
-  //   filters: {
-  //     page?: number;
-  //     size?: number;
-  //     search?: string;
-  //     statusId?: number;
-  //     minPrice?: number;
-  //     maxPrice?: number;
-  //   } = {},
-  //   options?: UseMealOptions
-  // ) => {
-  //   const { page = 0, size = 10, ...rest } = filters;
-
-  //   return useQuery<PaginatedMeals, Error>({
-  //     queryKey: ['meals', 'category', categoryId, page, size, rest],
-  //     queryFn: () =>
-  //       getMealsByCategoryId(token, categoryId, {
-  //         offset: page * size,
-  //         limit: size,
-  //         ...rest,
-  //       }),
-  //     enabled: (options?.enabled ?? true) && !!token && !!categoryId,
-  //     placeholderData: { items: [], total: 0, offset: 0, limit: size },
-  //     staleTime: 5 * 60 * 1000,
-  //   });
-  // };
   const useMealsByCategory = (
     categoryId: number,
     params: { offset: number; limit: number },
