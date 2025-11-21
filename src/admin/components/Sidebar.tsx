@@ -147,6 +147,10 @@ const items: MenuProps["items"] = [
       getItem(<NavLink to="/admin/settings">Cài đặt hệ thống</NavLink>, "34"),
       getItem(<NavLink to="/admin/permissions">Quản lý quyền</NavLink>, "35"),
     ]),
+     getItem("Quản lý gửi Email", "sub14", <SettingOutlined />, [
+      getItem(<NavLink to="/admin/emails">Xem lịch sử gửi Email</NavLink>, "36"),
+      getItem(<NavLink to="/admin/emails/send">Gửi Email</NavLink>, "37"),
+    ]),
   ];
 
   // Xử lý mở/đóng menu

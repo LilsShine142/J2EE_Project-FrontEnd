@@ -48,6 +48,11 @@ const routes = {
   role_list: "/admin/roles",
   permission_list: "/admin/permissions",
   role_permission: "/admin/role-permissions",
+  // Email Management
+  email_list: "/admin/emails",
+  view_email: "/admin/emails/view/:emailId",
+  email_send: "/admin/emails/send",
+  // Statistics
   // revenue statistics
   revenue_statistics: "/admin/statistics",
 };
