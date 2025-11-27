@@ -10,6 +10,7 @@ import {
   type EmailRequest,
   type EmailVerificationRequest,
   type PasswordResetRequest,
+  getEmailById,
 } from '../service/emailService';
 
 export const useEmail = (token: string | null) => {
@@ -78,14 +79,33 @@ export const useEmail = (token: string | null) => {
     });
   };
   
-  /**
+/**
    * Lấy lịch sử gửi email
    */
-  const useEmailHistory = (page: number = 0, size: number = 10, enabled: boolean = true) => {
+  const useEmailHistory = (
+    offset: number = 0,
+    limit: number = 10,
+    userId?: number,
+    startDate?: string,
+    endDate?: string,
+    type?: string,
+    enabled: boolean = true
+  ) => {
     return useQuery({
-      queryKey: ['emailHistory', page, size],
-      queryFn: () => getEmailHistory(token, page, size),
+      queryKey: ['emailHistory', offset, limit, userId, startDate, endDate, type],
+      queryFn: () => getEmailHistory(token, offset, limit, userId, startDate, endDate, type),
       enabled,
+    });
+  };
+
+    /**
+   * Lấy chi tiết email theo ID
+   */
+  const useEmailDetail = (id: number, enabled: boolean = true) => {
+    return useQuery({
+      queryKey: ['emailDetail', id],
+      queryFn: () => getEmailById(token, id),
+      enabled: !!id && enabled,
     });
   };
 
@@ -93,7 +113,8 @@ export const useEmail = (token: string | null) => {
     useSendEmail,
     useSendVerificationEmail,
     useSendPasswordResetEmail,
-      useSendWelcomeEmail,
-    useEmailHistory
+    useSendWelcomeEmail,
+    useEmailHistory,
+    useEmailDetail
   };
 };

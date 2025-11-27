@@ -11,6 +11,9 @@ import DetailModal from "../../Admin/Components/ModalForm/DetailModal";
 import { type BookingDTO } from '../../../../service/bookingService';
 import { useBooking } from '../../../../hooks/useBookings';
 import Cookies from 'js-cookie';
+import { usePermission } from "../../../../hooks/usePermissions";
+import { useCurrentUser } from "../../../../hooks/useUserHooks";
+import ActionButtons from "../../../components/PermissionButton/ActionButtons";
 
 export interface StatusOption {
   id: string;
@@ -39,12 +42,15 @@ const BookingList: React.FC = () => {
   const itemsPerPage = 10;
   const [searchQuery, setSearchQuery] = useState("");
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-
+  const { data: user } = useCurrentUser();
+  const token = Cookies.get("authToken") || "";
+  const { getMyPermissions } = usePermission(token);
+  
+  const [myPermissions, setMyPermissions] = useState<string[]>([]);
   const [filters, setFilters] = useState({
     statusId: "",
   });
 
-  const token = Cookies.get('authToken') || '';
   const { useAllBookings, useDelete } = useBooking(token);
 
   // Các status có thể có cho booking (dựa trên statusId từ API)
@@ -265,6 +271,25 @@ const BookingList: React.FC = () => {
     });
   };
 
+  useEffect(() => {
+    if (user && user.roleId && (user.roleId === 2 || user.roleId === 3)) {
+      getMyPermissions(token)
+      .then((perms) => {
+        const codes = perms.map((p: any) => p.permissionName).filter(Boolean);
+        setMyPermissions(codes);
+      })
+      .catch((err) => {
+        console.error("Lỗi lấy permission:", err);
+        setMyPermissions([]);
+      });
+    } else {
+        setMyPermissions([]);
+      }
+    }, [token, user]);
+      
+    const hasPermission = (code: string) => myPermissions.includes(code);
+  
+
   const columns = [
     { 
       key: "bookingID", 
@@ -342,38 +367,16 @@ const BookingList: React.FC = () => {
       key: "actions",
       label: "Hành động",
       render: (row: BookingDTO) => (
-        <div className="flex gap-1">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleView(row.bookingID);
-            }}
-            className="flex items-center gap-1 px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors"
-            title="Xem chi tiết"
-          >
-            <FaEye className="w-3 h-3" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(row.bookingID);
-            }}
-            className="flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600 transition-colors"
-            title="Chỉnh sửa"
-          >
-            <FaEdit className="w-3 h-3" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(row.bookingID);
-            }}
-            className="flex items-center gap-1 px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors"
-            title="Xóa"
-          >
-            <FaTrash className="w-3 h-3" />
-          </button>
-        </div>
+        <ActionButtons
+          onView={() => handleView(row.bookingID)}
+          onEdit={() => handleEdit(row.bookingID)}
+          onDelete={() => handleDelete(row.bookingID)}
+          permissions={{
+            canView: true,
+            canEdit: hasPermission("UPDATE_BOOKING"),
+            canDelete: hasPermission("DELETE_BOOKING"),
+          }}
+        />
       ),
     },
   ];
@@ -449,6 +452,7 @@ const BookingList: React.FC = () => {
       <AddNewBooking 
         onAdd={handleAddBooking}
         statusOptions={statusOptions}
+        disabled={!hasPermission("ADD_BOOKING")}
       />
 
       <div className="bg-white rounded-lg border overflow-hidden relative">

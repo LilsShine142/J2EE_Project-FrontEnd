@@ -1,13 +1,37 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { permissionService, type PermissionRequest } from '../service/permissionService';
+import { permissionService, type PermissionDTO, type PermissionRequest } from '../service/permissionService';
 import { message } from 'antd';
+import { configToken } from '../service/authService';
+import { axiosInstance } from '../lib/axios/axios';
 
 type UsePermissionsOptions = {
   enabled?: boolean;
 };
 
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
 export const usePermission = (token: string) => {
   const queryClient = useQueryClient();
+
+  /**
+   * Lấy danh sách permissions của user hiện tại
+   */
+  const getMyPermissions = async (token: string | null): Promise<PermissionDTO[]> => {
+    const response = await axiosInstance.get<ApiResponse<PermissionDTO[]>>(
+      '/permissions/my',
+      configToken(token)
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || "Lấy permissions thất bại");
+    }
+
+    return response.data.data;
+  };
 
   // Get all permissions
   const usePermissions = (
@@ -97,5 +121,6 @@ export const usePermission = (token: string) => {
     useCreatePermission,
     useUpdatePermission,
     useDeletePermission,
+    getMyPermissions,
   };
 };

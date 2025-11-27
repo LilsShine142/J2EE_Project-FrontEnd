@@ -8,6 +8,10 @@ import DataTable from "../../Components/Table/Table";
 import DetailModal from "../../Components/ModalForm/DetailModal";
 import AddNewTableType from "./addNewTableType";
 import UpdateTableType from "./updateTableType";
+import { useCurrentUser } from "../../../../../hooks/useUserHooks";
+import { usePermission } from "../../../../../hooks/usePermissions";
+import Cookies from "js-cookie";
+import ActionButtons from "../../../../components/PermissionButton/ActionButtons";
 
 // --- Fake data ---
 const FakeTableTypeData = [
@@ -58,10 +62,33 @@ const TableTypeList: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
-  const [selectedTableType, setSelectedTableType] = useState<TableType | null>(
-    null
-  );
+  const [selectedTableType, setSelectedTableType] = useState<TableType | null>(null);
   const [api, contextHolder] = notification.useNotification();
+  const { data: user } = useCurrentUser();
+  const token = Cookies.get("authToken") || "";
+  const { getMyPermissions } = usePermission(token);
+
+  const [myPermissions, setMyPermissions] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (user && user.roleId && (user.roleId === 2 || user.roleId === 3)) {
+      getMyPermissions(token)
+        .then((perms) => {
+          const codes = perms.map((p: any) => p.permissionName).filter(Boolean);
+          setMyPermissions(codes);
+        })
+        .catch((err) => {
+          console.error("Lỗi lấy permission:", err);
+          setMyPermissions([]);
+        });
+    } else {
+      setMyPermissions([]);
+    }
+    console.log("My Permissions:", myPermissions);
+  }, [token, user]);
+
+  const hasPermission = (code: string) => myPermissions.includes(code);
+  console.log("Has Permission Function:", hasPermission("VIEW_TABLE_TYPE"));
 
   const itemsPerPage = 2;
 
@@ -195,26 +222,16 @@ const TableTypeList: React.FC = () => {
       key: "actions",
       label: "Hành động",
       render: (row: TableType) => (
-        <div className="flex gap-1">
-          <button
-            onClick={() => handleView(row.TableTypeId)}
-            className="flex items-center gap-1 px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
-          >
-            <FaEye className="w-3 h-3" /> Xem
-          </button>
-          <button
-            onClick={() => handleEdit(row.TableTypeId)}
-            className="flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600"
-          >
-            <FaEdit className="w-3 h-3" /> Sửa
-          </button>
-          <button
-            onClick={() => handleDelete(row.TableTypeId)}
-            className="flex items-center gap-1 px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
-          >
-            <FaTrash className="w-3 h-3" /> Xóa
-          </button>
-        </div>
+        <ActionButtons
+          onView={() => handleView(row.TableTypeId)}
+          onEdit={() => handleEdit(row.TableTypeId)}
+          onDelete={() => handleDelete(row.TableTypeId)}
+          permissions={{
+            canView: true,
+            canEdit: hasPermission("UPDATE_TABLE_TYPE"),
+            canDelete: hasPermission("DELETE_TABLE_TYPE"),
+          }}
+        />
       ),
     },
   ];
@@ -261,7 +278,10 @@ const TableTypeList: React.FC = () => {
       </div>
 
       {/* Add Button */}
-      <AddNewTableType onAdd={handleAddTableType} />
+      <AddNewTableType
+        onAdd={handleAddTableType}
+        disabled={!hasPermission("ADD_TABLE_TYPE")}
+      />
 
       {/* Table */}
       <div className="bg-white rounded-lg border overflow-hidden">

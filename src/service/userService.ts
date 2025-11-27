@@ -142,7 +142,7 @@ export const createUser = async (
 export const updateUser = async (
   token: string,
   userId: number,
-  userData: Partial<User>  // Partial<User> để match UserDTO
+  userData: Partial<User>  
 ): Promise<UpdateUserResponse> => {
   const response = await axiosInstance.put<UpdateUserResponse>(
     `/users/${userId}`,

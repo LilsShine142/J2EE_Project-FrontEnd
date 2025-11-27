@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Space, Table, Tag, Modal, Input, Spin, Empty } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, TeamOutlined, KeyOutlined } from '@ant-design/icons';
 import { useRole } from '../../../../../hooks/useRoles';
@@ -8,6 +8,9 @@ import AddRole from './AddRole';
 import UpdateRole from './UpdateRole';
 import RolePermissionAssignment from './RolePermissionAssignment';
 import dayjs from 'dayjs';
+import { usePermission } from '../../../../../hooks/usePermissions';
+import { useCurrentUser } from '../../../../../hooks/useUserHooks';
+import AddButton from '../../../../components/PermissionButton/AddButton';
 
 const RoleList: React.FC = () => {
   const token = Cookies.get('authToken') || '';
@@ -20,6 +23,9 @@ const RoleList: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState<RoleDTO | null>(null);
+  const { data: user } = useCurrentUser();
+  const { getMyPermissions } = usePermission(token);
+  const [myPermissions, setMyPermissions] = useState<string[]>([]);
 
   // Get current user ID from cookie or context
   const currentUserId = 1; // TODO: Replace with actual user ID from auth context
@@ -62,6 +68,25 @@ const RoleList: React.FC = () => {
     setCurrentPage(page - 1);
     setPageSize(size);
   };
+
+  useEffect(() => {
+    if (user && user.roleId && (user.roleId === 2 || user.roleId === 3)) {
+      getMyPermissions(token)
+        .then((perms) => {
+          const codes = perms.map((p: any) => p.permissionName).filter(Boolean);
+          setMyPermissions(codes);
+        })
+        .catch((err) => {
+          console.error("Lỗi lấy permission:", err);
+          setMyPermissions([]);
+        });
+    } else {
+      setMyPermissions([]);
+    }
+  }, [token, user]);
+
+  const hasPermission = (code: string) => myPermissions.includes(code);
+
 
   const columns = [
     {
@@ -123,16 +148,26 @@ const RoleList: React.FC = () => {
             size="small"
             icon={<KeyOutlined />}
             onClick={() => handleManagePermissions(record)}
-            className="bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100"
+            className={
+            hasPermission("ASSIGN_PERMISSION_ROLE")
+              ? "bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100"
+              : "bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100 cursor-not-allowed"
+            }
+            disabled={!hasPermission("ASSIGN_PERMISSION_ROLE")}
           >
             Phân quyền
           </Button>
           <Button
-            type="primary"
-            ghost
+            type="default"
             size="small"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
+            className={
+              hasPermission("UPDATE_ROLE")
+                ? "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
+                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+            }
+            disabled={!hasPermission("UPDATE_ROLE")}
           >
             Sửa
           </Button>
@@ -142,7 +177,12 @@ const RoleList: React.FC = () => {
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record)}
             loading={deleteMutation.isPending}
-            disabled={['USER', 'ADMIN', 'MANAGER'].includes(record.roleName)}
+            className={
+              hasPermission("DELETE_ROLE") && !['USER', 'ADMIN'].includes(record.roleName)
+                ? ""
+                : "cursor-not-allowed"
+            }
+            disabled={!hasPermission("DELETE_ROLE") || ['USER', 'ADMIN'].includes(record.roleName)}
           >
             Xóa
           </Button>
@@ -167,17 +207,18 @@ const RoleList: React.FC = () => {
             onClick={() => refetch()}
             loading={isFetching}
             size="large"
+            className="px-5 py-5 rounded"
           >
             Làm mới
           </Button>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
+          <AddButton
+            // type="primary"
             onClick={() => setShowAddModal(true)}
-            size="large"
+            // size="large"
+            disabled={!hasPermission("ADD_ROLE")}
           >
             Thêm vai trò
-          </Button>
+          </AddButton>
         </Space>
       </div>
 

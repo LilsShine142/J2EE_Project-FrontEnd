@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { Plus } from "lucide-react";
 import ModalForm from "../Components/ModalForm/ModalForm";
-
+import AddButton from "../../../components/PermissionButton/AddButton";
 interface AddNewUserProps {
   onAdd: (userData: any) => Promise<void>;
   columns: any;
   initialFormData: any;
   roleOptions?: Array<{ RoleID: number; RoleName: string; Description: string }>;
+  disabled?: boolean;
 }
 
-const AddNewUser: React.FC<AddNewUserProps> = ({ onAdd, columns, initialFormData, roleOptions = [] }) => {
+const AddNewUser: React.FC<AddNewUserProps> = ({ onAdd, columns, initialFormData, roleOptions = [], disabled }) => {
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState(initialFormData);
 
@@ -42,13 +43,13 @@ const AddNewUser: React.FC<AddNewUserProps> = ({ onAdd, columns, initialFormData
 
   return (
     <>
-      <button
+      <AddButton
         onClick={() => setShowModal(true)}
+        disabled={!!disabled}
         className="inline-flex items-center gap-2 px-4 py-2 mb-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
       >
-        <Plus className="w-4 h-4" />
         Thêm người dùng
-      </button>
+      </AddButton>
 
       <ModalForm
         show={showModal}

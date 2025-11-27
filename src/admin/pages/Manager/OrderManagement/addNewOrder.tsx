@@ -10,6 +10,7 @@ import {
   type UserOption
 } from "../../../../service/orderService";
 import Cookies from "js-cookie";
+import AddButton from "../../../components/PermissionButton/AddButton";
 
 interface AddNewOrderProps {
   onAdd: () => void;
@@ -21,6 +22,7 @@ interface AddNewOrderProps {
   loadingUsers: boolean;
   onLoadFormData: () => Promise<void>;
   onUserAdded?: (newUser: UserOption) => void;
+  disabled?: boolean;
 }
 
 const AddNewOrder: React.FC<AddNewOrderProps> = ({ 
@@ -32,7 +34,8 @@ const AddNewOrder: React.FC<AddNewOrderProps> = ({
   loadingTables,
   loadingUsers,
   onLoadFormData,
-  onUserAdded
+  onUserAdded,
+  disabled,
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
@@ -102,22 +105,13 @@ const AddNewOrder: React.FC<AddNewOrderProps> = ({
 
   return (
     <>
-      <Button
-        type="primary"
-        icon={<Plus className="w-4 h-4" />}
+      <AddButton
         onClick={() => setShowModal(true)}
-        size="large"
-        className="mb-4"
-        style={{ 
-          borderRadius: '8px',
-          fontWeight: 600,
-          height: '44px',
-          paddingLeft: '24px',
-          paddingRight: '24px',
-        }}
+        disabled={!!disabled}
+        className="inline-flex items-center gap-2 px-4 py-2 mb-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
       >
         Tạo đơn hàng mới
-      </Button>
+      </AddButton>
 
       <Modal
         title={
