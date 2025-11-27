@@ -8,7 +8,7 @@ import { notification } from 'antd';
 import Pagination from "../../Admin/Components/Pagination";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import DetailModal from "../../Admin/Components/ModalForm/DetailModal";
-import { useCustomersForOrder } from "../../../../hooks/useUserHooks";
+import { useCurrentUser, useCustomersForOrder } from "../../../../hooks/useUserHooks";
 import { 
   type OrderDTO,
   type MealOption,
@@ -20,6 +20,8 @@ import {
 import { useOrder } from '../../../../hooks/useOrder';
 import { ORDER_STATUS_OPTIONS } from '../../../../lib/constants/constants';
 import Cookies from 'js-cookie';
+import ActionButtons from "../../../components/PermissionButton/ActionButtons";
+import { usePermission } from "../../../../hooks/usePermissions";
 
 const OrderList: React.FC = () => {
   
@@ -54,7 +56,10 @@ const OrderList: React.FC = () => {
     statusId: "",
   });
 
-  const token = Cookies.get('authToken') || '';
+  const { data: user } = useCurrentUser();
+  const token = Cookies.get("authToken") || "";
+  const { getMyPermissions } = usePermission(token);
+  const [myPermissions, setMyPermissions] = useState<string[]>([]);
   const { useAllOrders, useDeleteOrder } = useOrder(token);
 
   // Use hook for customers
@@ -287,6 +292,25 @@ const OrderList: React.FC = () => {
   const calculateTotal = (order: OrderDTO) => {
     return order.orderDetails?.reduce((sum, detail) => sum + detail.subTotal, 0) || 0;
   };
+  
+    useEffect(() => {
+      if (user && user.roleId && (user.roleId === 2 || user.roleId === 3)) {
+        getMyPermissions(token)
+          .then((perms) => {
+            const codes = perms.map((p: any) => p.permissionName).filter(Boolean);
+            setMyPermissions(codes);
+          })
+          .catch((err) => {
+            console.error("Lỗi lấy permission:", err);
+            setMyPermissions([]);
+          });
+      } else {
+        setMyPermissions([]);
+      }
+      console.log("My Permissions:", myPermissions);
+    }, [token, user]);
+  
+    const hasPermission = (code: string) => myPermissions.includes(code);
 
   const columns = [
     { 
@@ -360,38 +384,16 @@ const OrderList: React.FC = () => {
       key: "actions",
       label: "Hành động",
       render: (row: OrderDTO) => (
-        <div className="flex gap-1">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleView(row.orderID);
-            }}
-            className="flex items-center gap-1 px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors"
-            title="Xem chi tiết"
-          >
-            <FaEye className="w-3 h-3" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(row.orderID);
-            }}
-            className="flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600 transition-colors"
-            title="Chỉnh sửa"
-          >
-            <FaEdit className="w-3 h-3" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(row.orderID);
-            }}
-            className="flex items-center gap-1 px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors"
-            title="Hủy đơn"
-          >
-            <FaTrash className="w-3 h-3" />
-          </button>
-        </div>
+        <ActionButtons
+          onView={() => handleView(row.orderID)}
+          onEdit={() => handleEdit(row.orderID)}
+          onDelete={() => handleDelete(row.orderID)}
+          permissions={{
+            canView: true,
+            canEdit: hasPermission("UPDATE_ORDER"),
+            canDelete: hasPermission("DELETE_ORDER"),
+          }}
+        />
       ),
     },
   ];
@@ -465,6 +467,7 @@ const OrderList: React.FC = () => {
         loadingUsers={loadingUsers}
         onLoadFormData={loadFormData}
         onUserAdded={handleUserAdded}
+        disabled={!hasPermission("ADD_ORDER")}
       />
 
       <div className="bg-white rounded-lg border overflow-hidden relative">

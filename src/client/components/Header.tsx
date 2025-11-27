@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import { type User } from '../../types/index';
 import standaloneRoutes from '../../config/routes';
 import { useAuth } from '../../hooks/useAuth';
+import NotificationIcon from '../../components/NotificationIcon/NotificationIcon';
 
 // Lazy load BookingForm
 const BookingForm = lazy(() => import('./BookingForm/BookingForm'));
@@ -399,6 +400,9 @@ const Header: React.FC = () => {
                 0
               </span>
             </button>
+
+            {/* Notification Icon */}
+            <NotificationIcon />
 
             {/* Mobile menu */}
             <button className="md:hidden p-2 text-gray-300 hover:text-white">

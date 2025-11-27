@@ -12,6 +12,7 @@ export interface User {
   totalSpent?: number;
   loyaltyPoints?: number;
   statusWork: string;
+  roleId?: number;
   avatar?: string;
   gender?: string;
   statusId?: number;

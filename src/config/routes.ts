@@ -10,10 +10,15 @@ const routes = {
   // Client
   client_dashboard: "/client/dashboard",
   authPage: "/client/auth",
+  // Client Notifications
+  client_notifications: "/client/notifications",
+  client_notification_detail: "/client/notifications/:id",
 
   // Dish & Cart routes
   dish_detail: "/client/dish/:slug",  // Dynamic route với slug
   cart: "/client/cart",
+  vnPayCallback: "/client/payment/callback",
+  vnPayIPN: "/client/payment/ipn",
 
   // User Profile
   profile: "/client/profile",
@@ -25,6 +30,7 @@ const routes = {
 
   // Admin
   admin_dashboard: "/admin/dashboard",
+  admin_profile: "/admin/profile",
   // Admin role
   user_list: "/admin/users",
   customer_list: "/admin/customers",
@@ -50,8 +56,14 @@ const routes = {
   role_permission: "/admin/role-permissions",
   // Email Management
   email_list: "/admin/emails",
-  view_email: "/admin/emails/view/:emailId",
   email_send: "/admin/emails/send",
+  // Log list manager
+  logs_list: "/admin/logs",
+  // Notifications management
+  notification_list: "/admin/notifications",
+  send_notification: "/admin/send-notification",
+  notification_update: "/admin/notifications/update/:id",
+  notification_view: "/admin/notifications/view/:id",
   // Statistics
   // revenue statistics
   revenue_statistics: "/admin/statistics",

@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { Plus } from "lucide-react";
 import ModalForm from "../../Components/ModalForm/ModalForm";
+import AddButton from "../../../../components/PermissionButton/AddButton";
 
 interface AddNewTableTypeProps {
   onAdd: (tableTypeData: any) => Promise<void>;
+  disabled?: boolean;
 }
 
-const AddNewTableType: React.FC<AddNewTableTypeProps> = ({ onAdd }) => {
+const AddNewTableType: React.FC<AddNewTableTypeProps> = ({ onAdd, disabled }) => {
   const [showModal, setShowModal] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -91,13 +93,15 @@ const AddNewTableType: React.FC<AddNewTableTypeProps> = ({ onAdd }) => {
 
   return (
     <>
-      <button
+      <AddButton
         onClick={() => setShowModal(true)}
+        // permissionCode={permissionCode}
+        disabled={!!disabled}
         className="inline-flex items-center gap-2 px-4 py-2 mb-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
       >
         <Plus className="w-4 h-4" />
         Thêm loại bàn
-      </button>
+      </AddButton>
 
       <ModalForm
         show={showModal}

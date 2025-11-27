@@ -49,11 +49,24 @@ export interface EmailHistoryDTO {
  */
 export const getEmailHistory = async (
   token: string | null,
-  page: number = 0,
-  size: number = 10
-): Promise<{ content: EmailHistoryDTO[]; totalElements: number }> => {
-  const response = await axiosInstance.get<ApiResponse<{ content: EmailHistoryDTO[]; totalElements: number }>>(
-    `/emails/history?page=${page}&size=${size}`,
+  offset: number = 0,
+  limit: number = 10,
+  userId?: number,
+  startDate?: string,
+  endDate?: string,
+  type?: string
+): Promise<{ content: EmailHistoryDTO[]; totalElements: number; totalPages: number }> => {
+  const params = new URLSearchParams({
+    offset: offset.toString(),
+    limit: limit.toString(),
+  });
+  if (userId) params.append('userId', userId.toString());
+  if (startDate) params.append('startDate', startDate);
+  if (endDate) params.append('endDate', endDate);
+  if (type) params.append('type', type);
+
+  const response = await axiosInstance.get<ApiResponse<{ content: EmailHistoryDTO[]; totalElements: number; totalPages: number }>>(
+    `/emails/history?${params.toString()}`,
     configToken(token)
   );
 
@@ -136,4 +149,23 @@ export const sendWelcomeEmail = async (
   if (!response.data.success) {
     throw new Error(response.data.message || "Gửi email chào mừng thất bại");
   }
+};
+
+/**
+ * Lấy chi tiết email theo ID
+ */
+export const getEmailById = async (
+  token: string | null,
+  id: number
+): Promise<EmailHistoryDTO> => {
+  const response = await axiosInstance.get<ApiResponse<EmailHistoryDTO>>(
+    `/emails/${id}`,
+    configToken(token)
+  );
+
+  if (!response.data.success) {
+    throw new Error(response.data.message || "Lấy chi tiết email thất bại");
+  }
+
+  return response.data.data;
 };

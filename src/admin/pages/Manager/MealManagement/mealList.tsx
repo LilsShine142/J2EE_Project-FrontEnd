@@ -11,7 +11,10 @@ import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import DetailModal from "../../Admin/Components/ModalForm/DetailModal";
 import { type MealDTO } from '../../../../service/mealService';
 import { useMeal } from '../../../../hooks/useMeal';
-import Cookies from 'js-cookie';
+import { useCurrentUser } from "../../../../hooks/useUserHooks";
+import { usePermission } from "../../../../hooks/usePermissions";
+import Cookies from "js-cookie";
+import ActionButtons from "../../../components/PermissionButton/ActionButtons";
 import { useCategory } from "../../../../hooks/useCategory";
 import type { CategoryDTO } from '../../../../service/categoryService';
 
@@ -55,13 +58,16 @@ const MealList: React.FC = () => {
   const [categoryOptions, setCategoryOptions] = useState<CategoryOption[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const { data: user } = useCurrentUser();
+  const token = Cookies.get("authToken") || "";
+  const { getMyPermissions } = usePermission(token);
+  const [myPermissions, setMyPermissions] = useState<string[]>([]);
 
   const [filters, setFilters] = useState({
     category: "",
     status: "",
   });
 
-    const token = Cookies.get('authToken') || '';
     const { useCategories } = useCategory(token);
     const { data: categoriesPageData } = useCategories(0, 100); // Lấy 100 categories
   
@@ -270,6 +276,24 @@ const MealList: React.FC = () => {
     }
   };
 
+    useEffect(() => {
+        if (user && user.roleId && (user.roleId === 2 || user.roleId === 3)) {
+          getMyPermissions(token)
+            .then((perms) => {
+              const codes = perms.map((p: any) => p.permissionName).filter(Boolean);
+              setMyPermissions(codes);
+            })
+            .catch((err) => {
+              console.error("Lỗi lấy permission:", err);
+              setMyPermissions([]);
+            });
+        } else {
+          setMyPermissions([]);
+        }
+    }, [token, user]);
+    
+    const hasPermission = (code: string) => myPermissions.includes(code);
+
   const columns = [
     { 
       key: "mealID", 
@@ -334,38 +358,16 @@ const MealList: React.FC = () => {
       key: "actions",
       label: "Hành động",
       render: (row: MealDTO) => (
-        <div className="flex gap-1">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleView(row.mealID);
-            }}
-            className="flex items-center gap-1 px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors"
-            title="Xem chi tiết"
-          >
-            <FaEye className="w-3 h-3" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(row.mealID);
-            }}
-            className="flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600 transition-colors"
-            title="Chỉnh sửa"
-          >
-            <FaEdit className="w-3 h-3" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(row.mealID);
-            }}
-            className="flex items-center gap-1 px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors"
-            title="Xóa"
-          >
-            <FaTrash className="w-3 h-3" />
-          </button>
-        </div>
+        <ActionButtons
+          onView={() => handleView(row.mealID)}
+          onEdit={() => handleEdit(row.mealID)}
+          onDelete={() => handleDelete(row.mealID)}
+          permissions={{
+            canView: true,
+            canEdit: hasPermission("UPDATE_MEAL"),
+            canDelete: hasPermission("DELETE_MEAL"),
+          }}
+        />
       ),
     },
   ];
@@ -433,6 +435,7 @@ const MealList: React.FC = () => {
         onAdd={handleAddMeal}
         categoryOptions={categoryOptions}
         statusOptions={statusOptions}
+        disabled={!hasPermission("ADD_MEAL")}
       />
 
       <div className="bg-white rounded-lg border overflow-hidden relative">

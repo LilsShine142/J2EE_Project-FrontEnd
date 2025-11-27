@@ -1,4 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 import Cookies from 'js-cookie';
 import { ScrollReveal } from '../../components/ScrollReveal/ScrollReveal';
 import Header from '../components/Header';
@@ -8,8 +10,12 @@ import PopularDishesSection from '../components/PopularDishesSection';
 import IntroductionSection from '../components/IntroductionSection';
 import PromoBanner from '../components/PromoBanner';
 import Footer from '../components/Footer';
+import { getPaymentByTxnRef, type VNPayParams } from '../../service/paymentService';
 
 const ClientDashboard: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [hasProcessedPayment, setHasProcessedPayment] = useState(false);
   const token = Cookies.get('authToken') || null;
 
   // Reset scroll lock khi vào trang
@@ -24,6 +30,102 @@ const ClientDashboard: React.FC = () => {
     resetScroll();
     return resetScroll;
   }, []);
+
+  // Xử lý VNPAY callback khi có tham số trong URL
+  useEffect(() => {
+    const processVNPayCallback = async () => {
+      // Kiểm tra nếu đã xử lý rồi thì bỏ qua
+      if (hasProcessedPayment) return;
+
+      // Kiểm tra các tham số VNPAY trong URL
+      const vnpTxnRef = searchParams.get('vnp_TxnRef');
+      const vnpResponseCode = searchParams.get('vnp_ResponseCode');
+      const vnpTransactionStatus = searchParams.get('vnp_TransactionStatus');
+
+      // Nếu có tham số VNPAY, xử lý thanh toán
+      if (vnpTxnRef && vnpResponseCode && vnpTransactionStatus) {
+        try {
+          setHasProcessedPayment(true);
+
+          // Gọi API để lấy thông tin thanh toán
+          const paymentResult = await getPaymentByTxnRef(vnpTxnRef);
+
+          // Xóa các tham số VNPAY khỏi URL
+          const newSearchParams = new URLSearchParams(searchParams);
+          newSearchParams.delete('vnp_TxnRef');
+          newSearchParams.delete('vnp_ResponseCode');
+          newSearchParams.delete('vnp_TransactionStatus');
+          newSearchParams.delete('vnp_TransactionNo');
+          newSearchParams.delete('vnp_Amount');
+          newSearchParams.delete('vnp_OrderInfo');
+          newSearchParams.delete('vnp_PayDate');
+          newSearchParams.delete('vnp_BankCode');
+          newSearchParams.delete('vnp_BankTranNo');
+          newSearchParams.delete('vnp_CardType');
+          newSearchParams.delete('vnp_TmnCode');
+          newSearchParams.delete('vnp_SecureHash');
+
+          // Cập nhật URL mà không reload trang
+          if (newSearchParams.toString()) {
+            navigate(`${window.location.pathname}?${newSearchParams.toString()}`, { replace: true });
+          } else {
+            navigate(window.location.pathname, { replace: true });
+          }
+
+          // Hiển thị thông báo dựa trên kết quả thanh toán
+          if (paymentResult.success && vnpResponseCode === '00' && vnpTransactionStatus === '00') {
+            message.success({
+              content: (
+                <div>
+                  <div className="font-semibold text-lg mb-2">🎉 Thanh toán thành công!</div>
+                  <div className="text-sm">
+                    <p>Mã hóa đơn: #{paymentResult.data.billID}</p>
+                    <p>Số tiền: {paymentResult.data.initialPayment.toLocaleString()}₫</p>
+                    <p>Mã giao dịch: {paymentResult.data.transactionNo}</p>
+                    {paymentResult.data.remainingAmount > 0 && (
+                      <p className="text-amber-600">
+                        Còn lại: {paymentResult.data.remainingAmount.toLocaleString()}₫ (thanh toán tại quán)
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ),
+              duration: 8,
+              style: { marginTop: '20px' }
+            });
+
+            // Clear cart và currentBooking sau thanh toán thành công
+            sessionStorage.removeItem('cart');
+            localStorage.removeItem('currentBooking');
+          } else {
+            message.error({
+              content: (
+                <div>
+                  <div className="font-semibold text-lg mb-2">❌ Thanh toán thất bại</div>
+                  <div className="text-sm">
+                    <p>{paymentResult.message || 'Có lỗi xảy ra trong quá trình thanh toán'}</p>
+                    <p>Vui lòng thử lại hoặc liên hệ hỗ trợ</p>
+                  </div>
+                </div>
+              ),
+              duration: 6,
+              style: { marginTop: '20px' }
+            });
+          }
+
+        } catch (error: any) {
+          console.error('Error processing VNPAY callback:', error);
+          message.error({
+            content: 'Không thể xác nhận kết quả thanh toán. Vui lòng kiểm tra lại.',
+            duration: 5,
+            style: { marginTop: '20px' }
+          });
+        }
+      }
+    };
+
+    processVNPayCallback();
+  }, [searchParams, hasProcessedPayment, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-red-50">

@@ -28,9 +28,16 @@ import AddNewBill from "../admin/pages/Manager/BillManagement/addNewBill";
 import RoleList from "../admin/pages/Admin/Role_Permission/Role/RoleList";
 import PermissionList from "../admin/pages/Admin/Role_Permission/Permission/PermissionList";
 import RolePermissionList from "../admin/pages/Admin/Role_Permission/RolePermission/RolePermissionList";
-import ViewEmail from "../admin/pages/Admin/EmailManagement/ViewEmail";
 import EmailList from "../admin/pages/Admin/EmailManagement/EmailList";
 import SendEmail from "../admin/pages/Admin/EmailManagement/SendEmail";
+import LogList from "../admin/pages/Admin/LogManagement/LogList";
+import NotificationList from "../admin/pages/Admin/NotificationManagement/NotificationList";
+import NotificationAdd from "../admin/pages/Admin/NotificationManagement/NotificationAdd";
+import NotificationUpdate from "../admin/pages/Admin/NotificationManagement/NotificationUpdate";
+import NotificationView from "../admin/pages/Admin/NotificationManagement/NotificationView";
+import ClientNotifications from "../client/pages/ClientNotifications";
+import ClientNotificationDetail from "../client/pages/ClientNotificationDetail";
+import Profile from "../admin/pages/Admin/UserManagement/Profile";
 
 // Layout Routes (dùng ClientLayout cho dashboard)
 export const layoutRoutes: AppRoute[] = [
@@ -47,6 +54,8 @@ export const standaloneRoutes: AppRoute[] = [
   { path: config.routes.dish_detail, component: DishDetailsPage },
   { path: config.routes.cart, component: CartPage },
   { path: config.routes.not_found, component: NotFoundPage },
+  { path: config.routes.client_notifications, component: ClientNotifications },
+  { path: config.routes.client_notification_detail, component: ClientNotificationDetail },
 ];
 
 // Admin Nested Routes
@@ -67,8 +76,13 @@ export const adminRoutes: AppRoute[] = [
   { path: config.routes.permission_list, component: PermissionList },
   { path: config.routes.role_permission, component: RolePermissionList }, 
   { path: config.routes.email_list, component: EmailList },
-  { path: config.routes.view_email, component: ViewEmail },
   { path: config.routes.email_send, component: SendEmail },
+  { path: config.routes.logs_list, component: LogList },
+  { path: config.routes.notification_list, component: NotificationList },
+  { path: config.routes.send_notification, component: NotificationAdd },
+  { path: config.routes.notification_update, component: NotificationUpdate },
+  { path: config.routes.notification_view, component: NotificationView },
+  { path: config.routes.admin_profile, component: Profile },
 ];
 
 // Client Profile Nested Routes (dùng Outlet)

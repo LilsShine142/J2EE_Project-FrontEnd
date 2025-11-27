@@ -23,7 +23,6 @@ const roleIdToName: Record<number, RoleName> = {
 
 // === Helper: Tạo config với token (dùng chung) ===
 export const configToken = (token: string | null) => {
-  console.log('Configuring token for request:', token);
   if (!token) {
     throw new Error("Token không tồn tại. Vui lòng đăng nhập lại.");
   }

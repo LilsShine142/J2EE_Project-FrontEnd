@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Plus } from "lucide-react";
 import ModalForm from "../Components/ModalForm/ModalForm";
+import AddButton from "../../../components/PermissionButton/AddButton";
 
 interface StatusOption {
   id: string;
@@ -11,11 +12,13 @@ interface StatusOption {
 interface AddNewBookingProps {
   onAdd: (bookingData: any) => Promise<void>;
   statusOptions: StatusOption[];
+  disabled: boolean;
 }
 
 const AddNewBooking: React.FC<AddNewBookingProps> = ({ 
   onAdd, 
-  statusOptions 
+  statusOptions,
+  disabled,
 }) => {
   const bookingColumns = [
     {
@@ -112,13 +115,13 @@ const AddNewBooking: React.FC<AddNewBookingProps> = ({
 
   return (
     <>
-      <button
+      <AddButton
         onClick={() => setShowModal(true)}
         className="inline-flex items-center gap-2 px-4 py-2 mb-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+        disabled={!!disabled}
       >
-        <Plus className="w-4 h-4" />
         Thêm đặt bàn
-      </button>
+      </AddButton>
 
       <ModalForm
         show={showModal}

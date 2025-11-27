@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Space, Table, Tag, Modal, Input, Spin, Empty, Select } from 'antd';
 import { PlusOutlined, DeleteOutlined, ReloadOutlined, LinkOutlined, AppstoreAddOutlined } from '@ant-design/icons';
 import { useRolePermission } from '../../../../../hooks/useRolePermissions';
@@ -9,9 +9,14 @@ import type { RolePermissionDTO } from '../../../../../service/rolePermissionSer
 import AddRolePermission from './AddRolePermission';
 import BatchRolePermissionAssignment from './BatchRolePermissionAssignment';
 import dayjs from 'dayjs';
+import { useCurrentUser } from '../../../../../hooks/useUserHooks';
+import AddButton from '../../../../components/PermissionButton/AddButton';
 
 const RolePermissionList: React.FC = () => {
-  const token = Cookies.get('authToken') || '';
+  const { data: user } = useCurrentUser();
+  const token = Cookies.get("authToken") || "";
+  const { getMyPermissions } = usePermission(token);
+  const [myPermissions, setMyPermissions] = useState<string[]>([]);
   const { useRolePermissions, useDeleteRolePermission } = useRolePermission(token);
   const { useRoles } = useRole(token);
   const { usePermissions } = usePermission(token);
@@ -82,6 +87,25 @@ const RolePermissionList: React.FC = () => {
     return result;
   }, [data?.content, filterRoleId, filterPermissionId]);
 
+  useEffect(() => {
+      if (user && user.roleId && (user.roleId === 2 || user.roleId === 3)) {
+        getMyPermissions(token)
+          .then((perms) => {
+            const codes = perms.map((p: any) => p.permissionName).filter(Boolean);
+            setMyPermissions(codes);
+          })
+          .catch((err) => {
+            console.error("Lỗi lấy permission:", err);
+            setMyPermissions([]);
+          });
+      } else {
+        setMyPermissions([]);
+      }
+      console.log("My Permissions:", myPermissions);
+    }, [token, user]);
+  
+  const hasPermission = (code: string) => myPermissions.includes(code);
+  
   const columns = [
     {
       title: 'Vai trò',
@@ -139,6 +163,12 @@ const RolePermissionList: React.FC = () => {
           icon={<DeleteOutlined />}
           onClick={() => handleDelete(record)}
           loading={deleteMutation.isPending}
+          disabled={!hasPermission("DELETE_ROLE_PERMISSION")}
+            className={
+              hasPermission("DELETE_ROLE_PERMISSION")
+                ? ""
+                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+            }
         >
           Xóa
         </Button>
@@ -169,15 +199,25 @@ const RolePermissionList: React.FC = () => {
             icon={<AppstoreAddOutlined />}
             onClick={() => setShowBatchModal(true)}
             size="large"
-            className="bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100"
+            disabled={!hasPermission("ADD_ROLE_PERMISSION")}
+            className={
+              hasPermission("ADD_ROLE_PERMISSION")
+                ? "bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100"
+                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+            }
           >
             Gán hàng loạt
           </Button>
           <Button
-            type="primary"
             icon={<PlusOutlined />}
-            onClick={() => setShowAddModal(true)}
+            onClick={() => setShowBatchModal(true)}
             size="large"
+            disabled={!hasPermission("ADD_ROLE_PERMISSION")}
+            className={
+              hasPermission("ADD_ROLE_PERMISSION")
+                ? "bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100"
+                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+            }
           >
             Gán quyền
           </Button>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Space, Table, Tag, Modal, Input, Spin, Empty } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, KeyOutlined } from '@ant-design/icons';
 import { usePermission } from '../../../../../hooks/usePermissions';
@@ -6,9 +6,16 @@ import Cookies from 'js-cookie';
 import type { PermissionDTO } from '../../../../../service/permissionService';
 import AddPermission from './AddPermission';
 import UpdatePermission from './UpdatePermission';
+import ActionButtons from '../../../../components/PermissionButton/ActionButtons';
+import { useCurrentUser } from '../../../../../hooks/useUserHooks';
+import AddButton from '../../../../components/PermissionButton/AddButton';
 
 const PermissionList: React.FC = () => {
-  const token = Cookies.get('authToken') || '';
+  const { data: user } = useCurrentUser();
+  const token = Cookies.get("authToken") || "";
+  const { getMyPermissions } = usePermission(token);
+
+  const [myPermissions, setMyPermissions] = useState<string[]>([]);
   const { usePermissions, useDeletePermission } = usePermission(token);
 
   const [currentPage, setCurrentPage] = useState(0);
@@ -52,6 +59,25 @@ const PermissionList: React.FC = () => {
     setPageSize(size);
   };
 
+    useEffect(() => {
+      if (user && user.roleId && (user.roleId === 2 || user.roleId === 3)) {
+        getMyPermissions(token)
+          .then((perms) => {
+            const codes = perms.map((p: any) => p.permissionName).filter(Boolean);
+            setMyPermissions(codes);
+          })
+          .catch((err) => {
+            console.error("Lỗi lấy permission:", err);
+            setMyPermissions([]);
+          });
+      } else {
+        setMyPermissions([]);
+      }
+      console.log("My Permissions:", myPermissions);
+    }, [token, user]);
+  
+    const hasPermission = (code: string) => myPermissions.includes(code);
+
   const columns = [
     {
       title: 'ID',
@@ -82,7 +108,7 @@ const PermissionList: React.FC = () => {
       title: 'Thao tác',
       key: 'actions',
       width: 150,
-      render: (_: any, record: PermissionDTO) => (
+      render: (record: PermissionDTO) => (
         <Space size="small">
           <Button
             type="primary"
@@ -90,6 +116,12 @@ const PermissionList: React.FC = () => {
             size="small"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
+            disabled={!hasPermission("UPDATE_PERMISSION")}
+            className={
+              hasPermission("UPDATE_PERMISSION")
+                ? ""
+                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+            }
           >
             Sửa
           </Button>
@@ -99,6 +131,12 @@ const PermissionList: React.FC = () => {
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record)}
             loading={deleteMutation.isPending}
+            disabled={!hasPermission("DELETE_PERMISSION")}
+            className={
+              hasPermission("DELETE_PERMISSION")
+                ? ""
+                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+            }
           >
             Xóa
           </Button>
@@ -126,14 +164,14 @@ const PermissionList: React.FC = () => {
           >
             Làm mới
           </Button>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
+          <AddButton
+            // type="primary"
             onClick={() => setShowAddModal(true)}
-            size="large"
+            // size="large"
+            disabled={!hasPermission("ADD_PERMISSION")}
           >
             Thêm quyền
-          </Button>
+          </AddButton>
         </Space>
       </div>
 

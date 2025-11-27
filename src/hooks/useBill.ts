@@ -89,13 +89,25 @@ export const useBill = (token: string | null) => {
     return useMutation({
       mutationFn: ({ bookingId, requestData }: { bookingId: number; requestData: BillForBookingRequestDTO }) =>
         createBillForBooking(token, bookingId, requestData),
-      onSuccess: (paymentUrl) => {
-        message.success('Tạo hóa đơn và khởi tạo thanh toán thành công!');
-        queryClient.invalidateQueries({ queryKey: ['bills'] });
-        queryClient.invalidateQueries({ queryKey: ['bookings'] });
-        // Redirect to payment URL
-        if (paymentUrl) {
-          window.location.href = paymentUrl;
+      onSuccess: (response) => {
+        // Kiểm tra nếu response là payment URL thì redirect
+        if (typeof response === 'string' && response.startsWith('http')) {
+          message.success('Tạo hóa đơn và khởi tạo thanh toán thành công!');
+          queryClient.invalidateQueries({ queryKey: ['bills'] });
+          queryClient.invalidateQueries({ queryKey: ['bookings'] });
+          // Xóa currentBooking khỏi localStorage khi thanh toán thành công
+          localStorage.removeItem('currentBooking');
+          window.location.href = response;
+        } else {
+          // Nếu là response object, lưu vào localStorage và redirect đến callback page
+          localStorage.setItem('vnPayResponse', JSON.stringify(response));
+          message.success('Tạo hóa đơn và khởi tạo thanh toán thành công!');
+          queryClient.invalidateQueries({ queryKey: ['bills'] });
+          queryClient.invalidateQueries({ queryKey: ['bookings'] });
+          // Xóa currentBooking khỏi localStorage khi thanh toán thành công
+          localStorage.removeItem('currentBooking');
+          // Redirect đến callback page để xử lý kết quả
+          window.location.href = '/client/payment/callback';
         }
       },
       onError: (error: any) => {

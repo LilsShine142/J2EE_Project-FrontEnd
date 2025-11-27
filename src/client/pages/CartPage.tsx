@@ -29,7 +29,7 @@ const CartPage: React.FC = () => {
   const navigate = useNavigate();
   const token = getAuthToken();
   const { useMyBookings, useCancel } = useBooking(token);
-  const { data: bookingsData } = useMyBookings(0, 10, { enabled: !!token });
+  const { data: bookingsData, refetch } = useMyBookings(0, 10, { enabled: !!token });
   const cancelMutation = useCancel();
 
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -37,18 +37,21 @@ const CartPage: React.FC = () => {
   const [tempMeals, setTempMeals] = useState<SelectedMeal[]>([]);
   const [allMeals, setAllMeals] = useState<Meal[]>([]);
 
+  // Lấy currentBooking từ localStorage
   const currentBooking = useMemo(() => {
-    if (!bookingsData?.content) return null;
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); 
-    return bookingsData.content.find(booking => 
-      (booking.statusId === 3 || booking.statusId === 4) && 
-      new Date(booking.startTime) > today &&
-      new Date(booking.endTime) > today
-    ) || null;
-  }, [bookingsData]);
-
-  console.log('Current Booking:', currentBooking);
+    const currentBookingLocal = localStorage.getItem('currentBooking');
+    if (!currentBookingLocal) return null;
+    try {
+      const booking = JSON.parse(currentBookingLocal);
+      const now = new Date();
+      const endTime = new Date(booking.endTime);
+      const notExpired = endTime > now;
+      const notCancelled = booking.statusId !== 5;
+      return (notExpired && notCancelled) ? booking : null;
+    } catch (e) {
+      return null;
+    }
+  }, []);
 
   // === 2. ĐẶT BÀN THÀNH CÔNG ===
   const handleBookingSuccess = (hasMeals: boolean = false) => {
@@ -58,6 +61,7 @@ const CartPage: React.FC = () => {
     } else {
       message.success('Đặt bàn thành công! Bạn có thể gọi món tại quán hoặc chọn trước.');
     }
+    refetch(); // Refetch bookings to update currentBooking
     setShowBookingModal(false);
   };
 
@@ -198,7 +202,6 @@ const CartPage: React.FC = () => {
       <HeroSection title="Giỏ hàng & Đặt bàn" breadcrumbs={breadcrumbs} />
 
       <CartContent
-        currentBooking={currentBooking}
         onContinueShopping={handleContinueShopping}
         onCheckout={handleCheckout}
         onRequireBooking={() => setShowBookingModal(true)}

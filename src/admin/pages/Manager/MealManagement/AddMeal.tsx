@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Plus } from "lucide-react";
 import ModalForm from "../../Admin/Components/ModalForm/ModalForm";
 import { MStatusMeal } from "../../../../lib/constants/constants";
+import AddButton from "../../../components/PermissionButton/AddButton";
 
 interface CategoryOption {
   categoryID: number;
@@ -19,12 +20,14 @@ interface AddNewMealProps {
   onAdd: (mealData: any) => Promise<void>;
   categoryOptions: CategoryOption[];
   statusOptions: StatusOption[];
+  disabled: boolean;
 }
 
 const AddNewMeal: React.FC<AddNewMealProps> = ({ 
   onAdd, 
   categoryOptions, 
-  statusOptions 
+  statusOptions,
+  disabled
 }) => {
   const mealColumns = [
     {
@@ -101,13 +104,14 @@ const AddNewMeal: React.FC<AddNewMealProps> = ({
 
   return (
     <>
-      <button
+      <AddButton
         onClick={() => setShowModal(true)}
         className="inline-flex items-center gap-2 px-4 py-2 mb-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+        disabled={!!disabled}
       >
         <Plus className="w-4 h-4" />
         Thêm món ăn
-      </button>
+      </AddButton>
 
       <ModalForm
         show={showModal}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Space, message } from "antd";
 import { Plus, Receipt, RefreshCw } from "lucide-react";
 import { useBill } from "../../../../hooks/useBill";
@@ -10,10 +10,15 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import "../../../css/BillForm-list.css";
 import BillDetailView from "./billDetailView";
+import { useCurrentUser } from "../../../../hooks/useUserHooks";
+import { usePermission } from "../../../../hooks/usePermissions";
 
 const BillList: React.FC = () => {
   const navigate = useNavigate();
+  const { data: user } = useCurrentUser();
   const token = Cookies.get("authToken") || "";
+  const { getMyPermissions } = usePermission(token);
+  const [myPermissions, setMyPermissions] = useState<string[]>([]);
   const { useBills } = useBill(token);
 
   const [currentPage, setCurrentPage] = useState(0);
@@ -59,6 +64,25 @@ const BillList: React.FC = () => {
     setSelectedBill(null);
   };
 
+  useEffect(() => {
+      if (user && user.roleId && (user.roleId === 2 || user.roleId === 3)) {
+        getMyPermissions(token)
+          .then((perms) => {
+            const codes = perms.map((p: any) => p.permissionName).filter(Boolean);
+            setMyPermissions(codes);
+          })
+          .catch((err) => {
+            console.error("Lỗi lấy permission:", err);
+            setMyPermissions([]);
+          });
+      } else {
+        setMyPermissions([]);
+      }
+      console.log("My Permissions:", myPermissions);
+    }, [token, user]);
+  
+    const hasPermission = (code: string) => myPermissions.includes(code);
+
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg">
       {/* Header */}
@@ -71,8 +95,14 @@ const BillList: React.FC = () => {
           <Button
             type="primary"
             icon={<Plus className="w-4 h-4" />}
-            onClick={() => navigate("/admin/bills/add")}
+            onClick={hasPermission("CREATE_BILL") ? () => navigate("/admin/bills/add") : undefined}
             size="large"
+            disabled={!hasPermission("CREATE_BILL")}
+            className={`px-4 py-2 rounded ${
+              hasPermission("CREATE_BILL")
+                ? "bg-green-500 text-white hover:bg-green-600"
+                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+            }`}
           >
             Xuất hóa đơn
           </Button>

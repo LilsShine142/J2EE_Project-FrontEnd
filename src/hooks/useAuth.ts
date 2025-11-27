@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { login, register, RoleName, getDefaultRoute, logout } from '../service/authService';
+import { login, register, logout } from '../service/authService';
 import { useSetCurrentUser } from './useUserHooks';
 
 export const useAuth = () => {
@@ -14,7 +14,16 @@ export const useAuth = () => {
     onSuccess: ({ user }) => {
       message.success(`Chào mừng ${user.fullName}!`, 2);
       setCurrentUser(user);
-      navigate(getDefaultRoute(user.role?.RoleName as RoleName), { replace: true });
+      console.log('User:', user);
+      // Kiểm tra roleId và chuyển hướng
+      const roleId = user.roleId? user.roleId : user.role?.RoleId;
+      if (roleId === 1) {
+        navigate('/client/dashboard', { replace: true });
+      } else if (roleId === 2 || roleId === 3) {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        message.error('Vai trò không hợp lệ!');
+      }
     },
     onError: (error: any) => {
       console.error('[LOGIN ERROR]', error);
@@ -61,6 +70,8 @@ export const useAuth = () => {
       return Promise.resolve();
     },
     onSuccess: () => {
+      // Xóa cart khỏi sessionStorage khi logout
+      sessionStorage.removeItem('cart');
       message.success('Đăng xuất thành công');
       navigate('/client/auth', { replace: true });
     },

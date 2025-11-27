@@ -175,6 +175,7 @@ export const useCurrentUser = () => {
     queryKey: CURRENT_USER_KEY,
     queryFn: () => {
       const user = Cookies.get('user') ? JSON.parse(Cookies.get('user')!) : null;
+      console.log('Current user fetched:', user);
       if (!user) {
         message.warning('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         logout();
@@ -369,7 +370,16 @@ export const useUpdateUser = (token: string | null) => {
       }
     },
     onError: (error: any) => {
-      const errorMessage = error.response?.data?.message || 'Cập nhật thất bại!';
+      console.error('Update user error:', error);
+      
+      let errorMessage = 'Cập nhật thất bại!';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       message.error(errorMessage);
     },
   });
